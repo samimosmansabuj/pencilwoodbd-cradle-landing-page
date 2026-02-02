@@ -8,6 +8,30 @@
 
     <!-- ----- ALL CSS FILE INCLUDE ----- -->
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- {% if FACEBOOK_PIXEL_ID %} -->
+    <!-- Meta Pixel Code -->
+    <script>
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '918786117776017');
+        fbq('track', 'PageView');
+    </script>
+    <noscript>
+        <img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=918786117776017&ev=PageView&noscript=1" />
+    </noscript>
+    <!-- End Facebook Pixel Code -->
+    <!-- {% endif %} -->
 </head>
 
 <body>
@@ -35,7 +59,7 @@
             </div>
             <div class="hero-sub-sec">
                 <h3 class="hero-title">
-                    আপনার বাচ্চার জন্য একটাই টেবিল - 
+                    আপনার বাচ্চার জন্য একটাই টেবিল -
                 </h3>
                 <h3 class="incorage-title">
                     Play, Study, Swing & More!
@@ -238,7 +262,7 @@
         <div class="sticky-order-bar">
             <div class="sticky-order-price">
                 আজকের অফার প্রাইস:
-                <div><strong id="stickyTotalPrice">৳3990</strong> <span style="font-size:11px;color:#9ca3af;">(ডেলিভারি
+                <div><strong id="stickyTotalPrice">৳ <span id="productPrice" data-product-id="1">3990</span></strong> <span style="font-size:11px;color:#9ca3af;">(ডেলিভারি
                         ফ্রি)</span>
                 </div>
             </div>
@@ -379,7 +403,8 @@
 
                             <div class="form-group">
                                 <label for="address">সম্পূর্ণ ঠিকানা</label>
-                                <textarea id="address" name="address" rows="3" placeholder="বাড়ি/রোড/এরিয়া/থানা উল্লেখ করুন" required></textarea>
+                                <textarea id="address" name="address" rows="3"
+                                    placeholder="বাড়ি/রোড/এরিয়া/থানা উল্লেখ করুন" required></textarea>
                             </div>
 
                             <div class="form-group">
@@ -461,6 +486,7 @@
     <!-- ----- ALL JS/SCRIPT FILE INCLUDE ----- -->
     <script src="js/script.js"></script>
     <script src="js/custom.js"></script>
+    <script src="js/marketing.js"></script>
 </body>
 
 </html>

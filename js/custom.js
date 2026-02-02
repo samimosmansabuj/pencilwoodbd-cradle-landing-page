@@ -143,6 +143,13 @@ const closeBtn = document.querySelector('.close-btn');
 
 openBtns.forEach(btn => {
     btn.addEventListener('click', () => {
+        // ----- PIXEL ADD TO CART SETUP -----
+        productPrice = document.getElementById("productPrice");
+        content_ids = [String(productPrice.dataset.productId)];
+        content_name = "Cradle - Baby Product";
+        contentValue = parseFloat(productPrice.textContent || 0);
+        FacebookAddToCartEvent(content_ids, content_name, contentValue);
+
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
     });
@@ -152,13 +159,6 @@ closeBtn.addEventListener('click', () => {
     modal.classList.remove('active');
     document.body.style.overflow = '';
 });
-
-// modal.addEventListener('click', (e) => {
-//     if (e.target === modal) {
-//         modal.classList.remove('active');
-//         document.body.style.overflow = '';
-//     }
-// });
 let lockModal = false;
 modal.addEventListener('click', (e) => {
     if (lockModal) return;
@@ -198,19 +198,22 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     loader.classList.remove("hidden");
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> প্রসেসিং...';
-    
-    function getProductsJSON() {
-        const allRows = productSummary.querySelectorAll(".summary-row");
-        const products = [];
 
+    // ----- PIXEL INITIATE CHECKOUT SETUP -----
+    content_name = "Cradle - Baby Product";
+    summaryTotal = parseFloat(document.getElementById('summaryTotal').textContent || 0)
+    FacebookInitiateCheckEvent(getProductJSON(), content_name, summaryTotal);
+    
+    function getProductJSON() {
+        const allRows = productSummary.querySelectorAll(".summary-row");
+        const contents = [];
         allRows.forEach(row => {
             const product_id = row.dataset.productId;
             const product_unit_price = row.dataset.productUnitPrice;
             const product_title = row.querySelector(".product_name")?.textContent.trim() || "";
             const qty = Number(row.querySelector(".qty")?.textContent) || 0;
             const total_amount = parseFloat(row.querySelector(".total_amount")?.textContent) || 0;
-
-            products.push({
+            contents.push({
                 id: product_id,
                 name: product_title,
                 price: product_unit_price,
@@ -218,8 +221,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
                 total_amount: total_amount
             });
         });
-
-        return products;
+        return contents;
     }
     function getCustomerJSON(){
         customer_details = {
@@ -232,7 +234,6 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     }
     function getAmountJSON(){
         return {
-            // productTotal: parseFloat(productTotalEl.textContent || 0),
             productTotal: parseFloat(document.getElementById("productTotal").textContent),
             deliveryCharge: Number(document.getElementById("summaryDelivery").textContent),
             totalAmount: parseFloat(document.getElementById('summaryTotal').textContent || 0),
@@ -240,7 +241,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     }
     const formData = {
         customer: getCustomerJSON(),
-        products: getProductsJSON(),
+        products: getProductJSON(),
         amount: getAmountJSON(),
         note: document.getElementById("note").value.trim() || "No Note Is Provided From Client",
     };
@@ -263,11 +264,15 @@ document.getElementById("orderForm").addEventListener("submit", async function (
 
         // const data = await response.json();
 
+        // ----- PIXEL PURCHASE SETUP -----
+        FacebookPurchaseEvent(getProductJSON(), content_name, summaryTotal);
+        
         lockModal = true;
         modalContent.innerHTML = "";
         modalContent.appendChild(OrderCompleteCard());
         loader.classList.add("hidden");
         document.body.style.overflow = 'hidden';
+        
 
         let countdown = 10;
         const countdownEl = document.getElementById("countdown");
