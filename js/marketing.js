@@ -4,7 +4,7 @@
 // Main Pixel Setup Code Dynamic Event Tracking Function ========== 
 (async function () {
     try {
-        const res = await fetch("http://127.0.0.1:8000/api/pixel-settings/");
+        const res = await fetch("https://api.pencilwoodbd.org/api/pixel-settings/");
         const data = await res.json();
 
         const pixelId = data.FACEBOOK_PIXEL_ID;
