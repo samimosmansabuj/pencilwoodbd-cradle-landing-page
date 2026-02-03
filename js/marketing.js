@@ -2,7 +2,31 @@
 // *********//////////====Facebook Pixel and Event Tracking Function=====/////////////***************
 
 // Main Pixel Setup Code Dynamic Event Tracking Function ========== 
+(async function () {
+    try {
+        const res = await fetch(`${ENV.API_BASE_URL}/api/pixel-settings/`);
+        const data = await res.json();
 
+        const pixelId = data.FACEBOOK_PIXEL_ID;
+        if (!pixelId) return;
+
+        fbq('init', pixelId);
+        fbq('track', 'PageView');
+
+        // noscript
+        const noscript = document.createElement("noscript");
+        noscript.innerHTML = `
+    <img height="1" width="1" style="display:none"
+        src="https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1" />
+    `;
+        document.body.appendChild(noscript);
+
+        console.log("Pixel initialized:", pixelId);
+        FacebookViewContentEvent()
+    } catch (e) {
+        console.error("Pixel error:", e);
+    }
+})();
 
 
 // View Content Event Tracking Function ========== 
