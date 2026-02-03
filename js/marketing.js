@@ -21,10 +21,9 @@
     `;
         document.body.appendChild(noscript);
 
-        console.log("Pixel initialized:", pixelId);
         FacebookViewContentEvent()
     } catch (e) {
-        console.error("Pixel error:", e);
+        console.log("Pixel error:", e);
     }
 })();
 

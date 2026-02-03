@@ -1,6 +1,5 @@
 (async function () {
     try{
-        // console.log("product fetch!")
         const response = await fetch(`${ENV.API_BASE_URL}/api/product/`);
         const response_data = await response.json()
         const data = response_data.data[0]
@@ -13,7 +12,7 @@
             el.textContent = toBanglaNumber(Math.floor(data.discount_price));
         })
     } catch{
-        console.error("Product fetch errro:", e);
+        console.log("Product fetch errro:", e);
     }
 })();
 
@@ -154,7 +153,7 @@ fetch('https://bdapi.vercel.app/api/v.1/district').then(response => response.jso
         });
     }
 })
-.catch(error => console.error('Error fetching district:', error))
+.catch(error => console.log('Error fetching district:', error))
 districtSelect.addEventListener("change", function(){
     const district = this.value;
     if (!district) return;
@@ -176,7 +175,7 @@ const apiFetch = async (url, { method='GET', body, headers={} } = {}) =>
         body: body ? JSON.stringify(body) : undefined
     })
     .then(r => r.ok ? r.json() : Promise.reject(r))
-    .catch(err => { console.error('API error:', err); return null; });
+    .catch(err => { console.log('API error:', err); return null; });
 
 
 openBtns.forEach(btn => {
