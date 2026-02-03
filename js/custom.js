@@ -1,7 +1,7 @@
 (async function () {
     try{
         // console.log("product fetch!")
-        const response = await fetch("https://api.pencilwoodbd.org/api/product/");
+        const response = await fetch(`${ENV.API_BASE_URL}/api/product/`);
         const response_data = await response.json()
         const data = response_data.data[0]
 
@@ -189,7 +189,7 @@ openBtns.forEach(btn => {
         FacebookAddToCartEvent(content_ids, content_name, contentValue);
 
         // Fetch products
-        const data = await apiFetch("https://api.pencilwoodbd.org/api/product/");
+        const data = await apiFetch(`${ENV.API_BASE_URL}/api/product/`);
         products = data.data
 
         // Create Grid
