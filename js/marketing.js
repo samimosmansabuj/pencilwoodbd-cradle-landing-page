@@ -4,7 +4,7 @@
 // Main Pixel Setup Code Dynamic Event Tracking Function ========== 
 (async function () {
     try {
-        const res = await fetch(`${ENV.API_BASE_URL}/api/pixel-settings/`);
+        // const res = await fetch(`${ENV.API_BASE_URL}/api/pixel-settings/`);
         const data = await res.json();
 
         const pixelId = data.FACEBOOK_PIXEL_ID;
@@ -23,7 +23,7 @@
 
         FacebookViewContentEvent()
     } catch (e) {
-        console.log("Pixel error:", e);
+        // console.log("Pixel error:", e);
     }
 })();
 

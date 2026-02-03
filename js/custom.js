@@ -21,6 +21,11 @@ function toBanglaNumber(number) {
     const bang = "০১২৩৪৫৬৭৮৯";
     return number.toString().split("").map(d => bang[eng.indexOf(d)] || d).join("");
 }
+function toEnglishNumber(number) {
+    const bang = "০১২৩৪৫৬৭৮৯";
+    const eng = "0123456789";
+    return number.toString().split("").map(d => eng[bang.indexOf(d)] || d).join("");
+}
 
 
 const headerImage = document.getElementById('header-image');
@@ -33,110 +38,6 @@ galleryImages.forEach(img => {
         img.src = header_image;
     });
 });
-
-
-
-// // Product Summary Update When increase and decrease product quantity====
-// document.addEventListener("DOMContentLoaded", () => {
-//     // ---------- Prices ----------
-//     const CRADLE_PRICE = parseInt(
-//         document.getElementById("cradle-unit-price").textContent.replace(/[^0-9]/g, "")
-//     );
-//     const CHAIR_PRICE = parseInt(
-//         document.getElementById("chair-unit-price").textContent.replace(/[^0-9]/g, "")
-//     );
-
-//     // ---------- Summary Elements ----------
-//     const productSummary = document.getElementById("productSummary");
-//     const productTotalEl = document.getElementById("productTotal");
-//     const summaryTotalEl = document.getElementById("summaryTotal");
-//     const deliveryChargeEl = document.getElementById("summaryDelivery");
-
-//     let deliveryCharge = parseInt(deliveryChargeEl.textContent.replace(/[^0-9]/g, "")) || 100;
-//     document.getElementById("deliverydistrict").addEventListener("change", function(){
-//         const charge = (this.value === "dhaka") ? 80 : 120;
-//         deliveryCharge = charge;
-//         deliveryChargeEl.innerText = charge;
-//         updateSummary();
-//     });
-
-
-//     // ---------- Quantity Elements ----------
-//     const cradleCard = document.querySelector(".product-card[data-type='cradle']");
-//     const chairCard = document.querySelector(".product-card[data-type='chair']");
-
-//     const cradleQtyEl = cradleCard.querySelector(".qty-value");
-//     const chairQtyEl = chairCard.querySelector(".qty-value");
-
-//     let cradleQty = parseInt(cradleQtyEl.innerText);
-//     let chairQty = parseInt(chairQtyEl.innerText);
-
-//     // ---------- Quantity Buttons ----------
-//     function setupQty(card, type) {
-//         const minusBtn = card.querySelector(".minus");
-//         const plusBtn = card.querySelector(".plus");
-//         const qtyEl = card.querySelector(".qty-value");
-
-//         let qty = parseInt(qtyEl.innerText);
-
-//         plusBtn.addEventListener("click", () => {
-//             qty++;
-//             qtyEl.innerText = qty;
-//             card.classList.add("active");
-//             onQuantityChange(type, qty);
-//         });
-//         minusBtn.addEventListener("click", () => {
-//             if (qty > 0) qty--;
-//             qtyEl.innerText = qty;
-//             if (qty === 0) card.classList.remove("active");
-//             onQuantityChange(type, qty);
-//         });
-//     }
-//     setupQty(cradleCard, "cradle");
-//     setupQty(chairCard, "chair");
-
-//     // ---------- Update Summary ----------
-//     function onQuantityChange(type, value) {
-//         if (type === "cradle") cradleQty = value;
-//         if (type === "chair") chairQty = value;
-//         updateSummary();
-//     }
-
-//     function updateSummary() {
-//         productSummary.innerHTML = "";
-//         let productTotal = 0;
-//         if (cradleQty > 0) {
-//             const cradleProductId = document.getElementById("cradle-product-id").textContent;
-//             const cradleAmount = cradleQty * CRADLE_PRICE;
-//             productTotal += cradleAmount;
-//             productSummary.appendChild(createRow("Cradle / Table", cradleProductId, cradleQty, CRADLE_PRICE, cradleAmount));
-//         }
-//         if (chairQty > 0) {
-//             const chairProductId = document.getElementById("chair-product-id").textContent;
-//             const chairAmount = chairQty * CHAIR_PRICE;
-//             productTotal += chairAmount;
-//             productSummary.appendChild(createRow("Chair", chairProductId, chairQty, CHAIR_PRICE, chairAmount));
-//         }
-//         productTotalEl.innerText = productTotal;
-//         summaryTotalEl.innerText = productTotal + deliveryCharge;
-//     }
-
-//     function createRow(title, product_id, qty, unit_amount, total_amount) {
-//         const row = document.createElement("div");
-//         row.className = "summary-row";
-//         row.dataset.productId = product_id;
-//         row.dataset.productUnitPrice = unit_amount;
-//         row.innerHTML = `
-//             <span class="product_name">${title}</span>
-//             <span>x <span class="qty">${qty}</span></span>
-//             <span>৳ <span class="total_amount">${total_amount}</span></span>
-//         `;
-//         return row;
-//     }
-
-//     updateSummary();
-
-// });
 
 
 
@@ -180,13 +81,6 @@ const apiFetch = async (url, { method='GET', body, headers={} } = {}) =>
 
 openBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
-        // ----- PIXEL ADD TO CART SETUP -----
-        productPrice = document.getElementById("productPrice");
-        content_ids = [String(productPrice.dataset.productId)];
-        content_name = "Cradle - Baby Product";
-        contentValue = parseFloat(productPrice.textContent || 0);
-        FacebookAddToCartEvent(content_ids, content_name, contentValue);
-
         // Fetch products
         const data = await apiFetch(`${ENV.API_BASE_URL}/api/product/`);
         products = data.data
@@ -218,6 +112,14 @@ openBtns.forEach(btn => {
 
         // Initialize quantities and summary
         setupModalProducts(products);
+
+
+        // ----- PIXEL ADD TO CART SETUP -----
+        productPrice = document.getElementById("productPrice");
+        content_ids = [String(productPrice.dataset.productId)];
+        content_name = "Cradle - Baby Product";
+        contentValue = parseFloat(toEnglishNumber(productPrice.textContent || 0));
+        FacebookAddToCartEvent(content_ids, content_name, contentValue);
 
         // Show modal
         modal.classList.add('active');
@@ -451,6 +353,22 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     try {
+        const response = await fetch(`${ENV.API_BASE_URL}/api/create-order/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(formData)
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server error: ${response.status} - ${errorText}`);
+        }
+        const data = await response.json();
+        console.log("Order created:", data);
+
+        // ----- ALTERNATIVE ORDER SUBMISSION METHOD -----
         // const response = await fetch("https://crm-server-kappa.vercel.app/api/orders", {
         //     method: "POST",
         //     headers: {
