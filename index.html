@@ -11,7 +11,7 @@
 
     <!-- {% if FACEBOOK_PIXEL_ID %} -->
     <!-- Meta Pixel Code -->
-    <script>
+    <!-- <script>
         !function (f, b, e, v, n, t, s) {
             if (f.fbq) return; n = f.fbq = function () {
                 n.callMethod ?
@@ -29,7 +29,26 @@
     <noscript>
         <img height="1" width="1" style="display:none"
             src="https://www.facebook.com/tr?id=918786117776017&ev=PageView&noscript=1" />
-    </noscript>
+    </noscript> -->
+    <script>
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return;
+            n = f.fbq = function () {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n;
+            n.push = n;
+            n.loaded = !0;
+            n.version = '2.0';
+            n.queue = [];
+            t = b.createElement(e); t.async = !0;
+            t.src = v;
+            s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s);
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+    </script>
     <!-- End Facebook Pixel Code -->
     <!-- {% endif %} -->
 </head>
@@ -81,17 +100,17 @@
 
                     <div class="price-div">
                         <div class="old-price-div">
-                            <span class="old-price">৭৯৮০ </span> <sub class="money-name">টাকার </sub> <span
+                            <span class="old-price product-old-price">৭৯৮০ </span> <sub class="money-name">টাকার </sub> <span
                                 class="product-name">ক্রেডেল</span>
                         </div>
 
                         <div class="new-price-div">
-                            <span class="product-name">পেয়ে যাচ্ছেন মাত্র</span> <span class="new-price">৩৯৯০ </span>
+                            <span class="product-name">পেয়ে যাচ্ছেন মাত্র</span> <span class="new-price product-new-price">৩৯৯০</span>
                             <sub class="money-name">টাকায় </sub>
                         </div>
 
                         <div class="old-price-div">
-                            <span class="old-price">৩৫০ </span> <sub class="money-name">টাকার </sub> <span
+                            <span class="old-price">৩৫০</span> <sub class="money-name"> টাকার </sub> <span
                                 class="product-name" id="delivery-text">ডেলিভারি চার্জ একদম ফ্রি</span>
                         </div>
                     </div>
@@ -262,8 +281,8 @@
         <div class="sticky-order-bar">
             <div class="sticky-order-price">
                 আজকের অফার প্রাইস:
-                <div><strong id="stickyTotalPrice">৳ <span id="productPrice" data-product-id="1">3990</span></strong> <span style="font-size:11px;color:#9ca3af;">(ডেলিভারি
-                        ফ্রি)</span>
+                <div><strong id="stickyTotalPrice">৳ <span id="productPrice" data-product-id="1" class="product-new-price">3990</span></strong>
+                    <span style="font-size:11px;color:#9ca3af;">(ডেলিভারি ফ্রি)</span>
                 </div>
             </div>
             <button class="btn sticky-btn sticky-order-btn openOrderModal" onclick="document.getElementById('order')">
@@ -408,33 +427,8 @@
                             </div>
 
                             <div class="form-group">
-                                <div class="product-card-grid">
-                                    <!-- Product Card 1 : Cradle / Table -->
-                                    <div class="product-card selectable active" data-type="cradle">
-                                        <div class="card-info">
-                                            <p hidden id="cradle-product-id">1</p>
-                                            <h4>Cradle/Table</h4>
-                                            <p id="cradle-unit-price">৳ 3990</p>
-                                        </div>
-                                        <div class="qty-control">
-                                            <button type="button" class="qty-btn minus" data-product-id="1">-</button>
-                                            <span class="qty-value" id="cradleQty" name="cradleQty" min="1">1</span>
-                                            <button type="button" class="qty-btn plus" data-product-id="1">+</button>
-                                        </div>
-                                    </div>
-                                    <!-- Product Card 2 : Matching Chair -->
-                                    <div class="product-card selectable" data-type="chair">
-                                        <div class="card-info">
-                                            <p hidden id="chair-product-id">2</p>
-                                            <h4>Wood Chair</h4>
-                                            <p id="chair-unit-price">৳ 900</p>
-                                        </div>
-                                        <div class="qty-control">
-                                            <button type="button" class="qty-btn minus">−</button>
-                                            <span class="qty-value" id="chairQty" name="chairQty" min="1">0</span>
-                                            <button type="button" class="qty-btn plus">+</button>
-                                        </div>
-                                    </div>
+                                <div class="product-card-grid" id="productCardGrid">
+                                    
                                 </div>
                             </div>
 
