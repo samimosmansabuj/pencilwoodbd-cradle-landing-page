@@ -379,6 +379,29 @@ document.getElementById("orderForm").addEventListener("submit", async function (
             totalAmount: parseFloat(document.getElementById('summaryTotal').textContent || 0),
         }
     }
+    
+    if (!getCustomerJSON().name || !getCustomerJSON().phone || !getCustomerJSON().district || !getCustomerJSON().address) {
+        alert("অনুগ্রহ করে সমস্ত গ্রাহক তথ্য পূরণ করুন।");
+        loader.classList.add("hidden");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+        return;
+    }
+    if (getProductJSON().length === 0) {
+        alert("অনুগ্রহ করে অন্তত একটি পণ্য নির্বাচন করুন।");
+        loader.classList.add("hidden");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+        return;
+    }
+    if (getAmountJSON().totalAmount <= 0) {
+        alert("অবৈধ অর্ডার পরিমাণ। দয়া করে পণ্য এবং পরিমাণ পরীক্ষা করুন।");
+        loader.classList.add("hidden");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+        return;
+    }
+    
     const formData = {
         customer: getCustomerJSON(),
         products: getProductJSON(),
