@@ -11,6 +11,7 @@
         document.querySelectorAll(".product-new-price").forEach(el => {
             el.textContent = toBanglaNumber(Math.floor(data.discount_price));
         })
+        FacebookViewContentEvent(data.name, data.discount_price, data.id)
     } catch (e) {
         console.log("Product fetch errro:", e);
     }
@@ -398,9 +399,26 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     }
 
     // ----- PIXEL INITIATE CHECKOUT SETUP -----
-    content_name = "Cradle - Baby Product";
-    summaryTotal = parseFloat(document.getElementById('summaryTotal').textContent || 0)
-    FacebookInitiateCheckEvent(getProductJSON(), content_name, summaryTotal);
+    const product_details_for_event_send = function getProductJsonForEventSend(){
+        const allRows = productSummary.querySelectorAll(".summary-row");
+        const contents = [];
+        allRows.forEach(row => {
+            const product_id = row.dataset.productId;
+            const product_unit_price = row.dataset.productUnitPrice;
+            const product_title = row.querySelector(".product_name")?.textContent.trim() || "";
+            const qty = Number(row.querySelector(".qty")?.textContent) || 0;
+            contents.push({
+                id: product_id,
+                name: product_title,
+                quantity: qty,
+                price: product_unit_price,
+            });
+        });
+        return contents;
+    };
+    summaryTotal = parseFloat(document.getElementById('summaryTotal').textContent || 0);
+    FacebookInitiateCheckEvent(product_details_for_event_send(), summaryTotal);
+    GAInitiateCheckoutEvent(product_details_for_event_send(), summaryTotal);
     
     const formData = {
         customer: getCustomerJSON(),
@@ -428,7 +446,8 @@ document.getElementById("orderForm").addEventListener("submit", async function (
         const data = await response.json();
         if (data.success){
             // ----- PIXEL PURCHASE SETUP -----
-            FacebookPurchaseEvent(getProductJSON(), content_name, summaryTotal);
+            FacebookPurchaseEvent(product_details_for_event_send(), summaryTotal);
+            GAInitiatePurchaseEvent(product_details_for_event_send(), summaryTotal);
             
             lockModal = true;
             modalContent.innerHTML = "";
