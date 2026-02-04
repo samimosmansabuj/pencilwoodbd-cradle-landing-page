@@ -61,6 +61,7 @@ body {
     display: block;
     margin-bottom: 20px;
 }
+
 /* 354 × 199 px */
 .gallery-image {
     width: 78px;
@@ -73,6 +74,7 @@ body {
     border: 2px solid transparent;
     transition: border 0.3s;
 }
+
 .gallery-image:hover {
     /* border: 2px solid #007bff; */
     border: 0px;
@@ -269,7 +271,7 @@ body {
     }
 }
 
-/* Feature section design */
+/* Feature section design start ------------------------------------- */
 .feature-title {
     border: 2px solid var(--secondary-color);
     border-radius: 50px;
@@ -284,38 +286,56 @@ body {
     text-align: center;
 }
 
+/* CARD---  */
 .card {
     max-width: 600px;
+    position: relative;
+    margin: 40px 0;
+}
+
+.card-inner {
     background-color: #ffb400;
     border-radius: 20px;
     padding: 10px 20px;
     text-align: center;
-    position: relative;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    position: relative;
     overflow: hidden;
-    margin: 15px 0px;
+    /* ribbon বাইরে গেলে hide */
 }
 
-/* .ribbon {
+/* CARD IMAGE--- */
+.card-image-a {
     position: absolute;
-    top: 5px;
-    left: -35px;
-    background-color: #fff;
-    color: #333;
-    padding: 5px 0;
-    font-weight: bold;
-    font-size: 11px;
-    transform: rotate(-45deg);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    width: 150px;
-    text-align: center;
+    top: -65px;
+    left: 20%;
+    transform: translateX(-50%);
     z-index: 1;
-} */
+}
+.card-image-b {
+    position: absolute;
+    top: -65px;
+    right: -20%;
+    transform: translateX(-50%);
+    z-index: 1;
+}
 
+.card-image-a img {
+    width: 150px;
+    border-radius: 15px;
+}
+.card-image-b img {
+    width: 150px;
+    border-radius: 15px;
+}
+
+/* CARD RIBBON--- */
 .ribbon-type-a {
     position: absolute;
     top: 15px;
     left: -35px;
+    z-index: 3;
+
     background-color: #fff;
     color: #333;
     font-weight: bold;
@@ -324,8 +344,6 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     width: 105px;
     height: 15px;
-    text-align: center;
-    z-index: 1;
 
     display: flex;
     align-items: center;
@@ -335,16 +353,14 @@ body {
 .card-layout-type-a {
     display: flex;
     justify-content: space-between;
+    padding-left: 80px;
 }
 
 .card-layout-type-b {
     display: flex;
     flex-direction: row-reverse;
     justify-content: space-between;
-}
-
-.img {
-    width: 150px;
+    padding-right: 80px;
 }
 
 .title-type-a {
@@ -386,6 +402,8 @@ body {
     font-size: 12px;
     text-align: start;
 }
+
+/* Feature section design end ------------------------------------- */
 
 .faq {
     margin: 15px 0;
@@ -1334,4 +1352,3 @@ footer {
         font-size: 1.2rem;
     }
 }
-

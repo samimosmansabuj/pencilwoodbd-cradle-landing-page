@@ -334,11 +334,6 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     loader.classList.remove("hidden");
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> প্রসেসিং...';
-
-    // ----- PIXEL INITIATE CHECKOUT SETUP -----
-    content_name = "Cradle - Baby Product";
-    summaryTotal = parseFloat(document.getElementById('summaryTotal').textContent || 0)
-    FacebookInitiateCheckEvent(getProductJSON(), content_name, summaryTotal);
     
     function getProductJSON() {
         const allRows = productSummary.querySelectorAll(".summary-row");
@@ -401,6 +396,11 @@ document.getElementById("orderForm").addEventListener("submit", async function (
         submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
         return;
     }
+
+    // ----- PIXEL INITIATE CHECKOUT SETUP -----
+    content_name = "Cradle - Baby Product";
+    summaryTotal = parseFloat(document.getElementById('summaryTotal').textContent || 0)
+    FacebookInitiateCheckEvent(getProductJSON(), content_name, summaryTotal);
     
     const formData = {
         customer: getCustomerJSON(),
@@ -408,6 +408,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
         amount: getAmountJSON(),
         note: document.getElementById("note").value.trim() || "No Note Is Provided From Client",
     };
+    
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     try {

@@ -11,9 +11,10 @@
     <!-- ----- ALL CSS FILE INCLUDE ----- -->
     <link rel="stylesheet" href="css/style.css">
 
+    <!-- ======================= Meta Pixel Code ======================= -->
+
     <!-- {% if FACEBOOK_PIXEL_ID %} -->
-    <!-- Meta Pixel Code -->
-    <script>
+    <!-- <script>
         !function (f, b, e, v, n, t, s) {
             if (f.fbq) return;
             n = f.fbq = function () {
@@ -31,19 +32,21 @@
             s.parentNode.insertBefore(t, s);
         }(window, document, 'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-    </script>
-    <!-- End Facebook Pixel Code -->
+    </script> -->
     <!-- {% endif %} -->
+
     <!-- Google Tag Manager -->
-    <!-- <script>(function (w, d, s, l, i) {
+    <script>(function (w, d, s, l, i) {
             w[l] = w[l] || []; w[l].push({
                 'gtm.start':
                     new Date().getTime(), event: 'gtm.js'
             }); var f = d.getElementsByTagName(s)[0],
                 j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
                     'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-ML7CMB2K');</script> -->
+        })(window, document, 'script', 'dataLayer', 'GTM-ML7CMB2K');</script>
     <!-- End Google Tag Manager -->
+
+    <!-- ======================= End Facebook Pixel Code ======================= -->
 </head>
 
 <body>
@@ -150,173 +153,171 @@
             </div>
 
             <div class="card">
-                <div class="ribbon-type-a">Study</div>
-                <div class="card-layout-type-a">
-                    <div class="img">
-                        <img src="images/activities/Reading Table.png" alt="reading-table">
-                    </div>
-                    <div class="content">
-                        <h1 class="title-type-a">Reading Table</h1>
-                        <p class="description-type-a">
-                            উচ্চতা অনুযায়ী perfect সাইজ - ড্রয়িং,
-                            লেখাপড়া আর হোমওয়ার্ক এর জন্য আদর্শ।
-                        </p>
-                    </div>
+                <!-- product image (can overflow) -->
+                <div class="card-image-a">
+                    <img src="images/activities/Reading Table.png" alt="Reading Table">
                 </div>
-            </div>
-            <style>
-                /* ==================Card A Series Start================== */
-                .card-layout-type-a {
-                    position: relative;
-                }
 
-                .card-layout-type-a .img {
-                    position: absolute;
-                    top: -60px;
-                    left: -30px;
-                    width: 150px;
-                    height: 150px;
-                }
+                <!-- inner clipped area -->
+                <div class="card-inner">
+                    <div class="ribbon-type-a">Study</div>
 
-                .card-layout-type-a .img img {
-                    width: 100%;
-                    height: auto;
-                    object-fit: contain;
-                    border-radius: 8px;
-                }
-
-                .card-layout-type-a .content {
-                    padding-left: 80px;
-                }
-                /* ==================Card A Series END================== */
-
-                /* ==================Card B Series Start================== */
-                .card-layout-type-b {
-                    position: relative;
-                }
-
-                .card-layout-type-b .img {
-                    position: absolute;
-                    top: -60px;
-                    right: -30px;
-                    width: 150px;
-                }
-
-                .card-layout-type-b .img img {
-                    width: 100%;
-                    height: auto;
-                    object-fit: contain;
-                    border-radius: 8px;
-                }
-
-                .card-layout-type-b .content {
-                    padding-right: 80px;
-                }
-                /* ==================Card B Series END================== */
-            </style>
-
-            <div class="card">
-                <div class="ribbon-type-b">Play</div>
-                <div class="card-layout-type-b">
-                    <div class="img">
-                        <img src="images/activities/Swing _ দোলনা.png" alt="swing-dholna">
-                    </div>
-                    <div class="content">
-                        <h1 class="title-type-b">Swing / দোলনা</h1>
-                        <p class="description-type-b">
-                            উল্টে দিলেই হয় মজার দোলনা, মজবুত এবং নিরাপদ।
-                        </p>
+                    <div class="card-layout-type-a">
+                        <div class="content">
+                            <h1 class="title-type-a">Reading Table</h1>
+                            <p class="description-type-a">
+                                উচ্চতা অনুযায়ী perfect সাইজ - ড্রয়িং,
+                                লেখাপড়া আর হোমওয়ার্ক এর জন্য আদর্শ।
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="ribbon-type-a">Movement</div>
-                <div class="card-layout-type-a">
-                    <div class="img">
-                        <img src="images/activities/Activity Tool.png" alt="activities-tools">
-                    </div>
-                    <div class="content">
-                        <h1 class="title-type-a">Activity Tool</h1>
-                        <p class="description-type-a">
-                            ওঠা-নামা, ধরে থাকা, ব্যালান্স করা –
-                            ডেভেলপ হয় বডি কন্ট্রোল ও কোরডিনেশন।
-                        </p>
+                <!-- product image (can overflow) -->
+                <div class="card-image-b" style="right: -23%;">
+                    <img src="images/activities/Swing _ দোলনা.png" alt="swing-dholna" style="width: 135px;">
+                </div>
+
+                <!-- inner clipped area -->
+                <div class="card-inner">
+                    <div class="ribbon-type-b">Play</div>
+
+                    <div class="card-layout-type-b">
+                        <div class="content">
+                            <h1 class="title-type-b">Swing / দোলনা</h1>
+                            <p class="description-type-b">
+                                উল্টে দিলেই হয় মজার দোলনা, মজবুত এবং নিরাপদ।
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="ribbon-type-b">Storage</div>
-                <div class="card-layout-type-b">
-                    <div class="img">
-                        <img src="images/activities/Toy Stoarage.png" alt="toy-stoarage">
-                    </div>
-                    <div class="content">
-                        <h1 class="title-type-b">Toy Storage</h1>
-                        <p class="description-type-b">
-                            ছড়িয়ে থাকা খেলনার গুছিয়ে রাখার পারফেন্ট সমাধান।
-                        </p>
+                <!-- product image (can overflow) -->
+                <div class="card-image-a" style="top: -50%;">
+                    <img src="images/activities/Activity Tool.png" alt="activities-tools">
+                </div>
+
+                <!-- inner clipped area -->
+                <div class="card-inner">
+                    <div class="ribbon-type-a">Movement</div>
+
+                    <div class="card-layout-type-a">
+                        <div class="content">
+                            <h1 class="title-type-a">Activity Tool</h1>
+                            <p class="description-type-a">
+                                ওঠা-নামা, ধরে থাকা, ব্যালান্স করা –
+                                ডেভেলপ হয় বডি কন্ট্রোল ও কোরডিনেশন।
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="ribbon-type-a">Sports</div>
-                <div class="card-layout-type-a">
-                    <div class="img">
-                        <img src="images/activities/Football Goalpost.png" alt="football-goalpost">
-                    </div>
-                    <div class="content">
-                        <h1 class="title-type-a">Football Goalpost</h1>
-                        <p class="description-type-a">
-                            ঘরের মধ্যেই প্লে জোন - ফুটবল খেলা কিংবা অন্য কিছু।
-                        </p>
+                <!-- product image (can overflow) -->
+                <div class="card-image-b" style="top: -68%; right: -15%;">
+                    <img src="images/activities/Toy Stoarage.png" alt="toy-stoarage" style="width: 135px;">
+                </div>
+
+                <!-- inner clipped area -->
+                <div class="card-inner">
+                    <div class="ribbon-type-b">Storage</div>
+
+                    <div class="card-layout-type-b">
+                        <div class="content">
+                            <h1 class="title-type-b">Toy Storage</h1>
+                            <p class="description-type-b">
+                                ছড়িয়ে থাকা খেলনার গুছিয়ে রাখার পারফেন্ট সমাধান।
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="ribbon-type-b">Imagination</div>
-                <div class="card-layout-type-b">
-                    <div class="img">
-                        <img src="images/activities/Mini Camping Tent.png" alt="mini-camping-tent">
-                    </div>
-                    <div class="content">
-                        <h1 class="title-type-b">Mini Camping Tent</h1>
-                        <p class="description-type-b">
-                            কাপড়ে ঢেকে বানিয়ে ফেলুন ক্যাম্পেইন টেন্ট - গল্প, লুকুচুরি আর ইমাজিনারি প্লে।
-                        </p>
+                <!-- product image (can overflow) -->
+                <div class="card-image-a" style="top: -31px; left: 20%;">
+                    <img src="images/activities/Football Goalpost.png" alt="football-goalpost" style="width: 165px;">
+                </div>
+
+                <!-- inner clipped area -->
+                <div class="card-inner">
+                    <div class="ribbon-type-a">Sports</div>
+
+                    <div class="card-layout-type-a">
+                        <div class="content">
+                            <h1 class="title-type-a">Football Goalpost</h1>
+                            <p class="description-type-a">
+                                ঘরের মধ্যেই প্লে জোন - ফুটবল খেলা কিংবা অন্য কিছু।
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="ribbon-type-a">Family</div>
-                <div class="card-layout-type-a">
-                    <div class="img">
-                        <img src="images/activities/Relaxing Chair.png" alt="relaxing-chair">
-                    </div>
-                    <div class="content">
-                        <h1 class="title-type-a">Relaxing Chair</h1>
-                        <p class="description-type-a">
-                            বড়রাও এতে বসে রিলাক্স করতে পারবেন।
-                        </p>
+                <!-- product image (can overflow) -->
+                <div class="card-image-b" style="top: -45px; right: -28%;">
+                    <img src="images/activities/Mini Camping Tent.png" alt="mini-camping-tent" style="width: 170px;">
+                </div>
+
+                <!-- inner clipped area -->
+                <div class="card-inner">
+                    <div class="ribbon-type-b">Imagination</div>
+
+                    <div class="card-layout-type-b">
+                        <div class="content">
+                            <h1 class="title-type-b">Mini Camping Tent</h1>
+                            <p class="description-type-b">
+                                কাপড়ে ঢেকে বানিয়ে ফেলুন ক্যাম্পেইন টেন্ট - গল্প, লুকুচুরি আর ইমাজিনারি প্লে।
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="ribbon-type-b">Multi-use</div>
-                <div class="card-layout-type-b">
-                    <div class="img">
-                        <img src="images/activities/Laptop _ Side Table.png" alt="laptop-side-table">
+                <!-- product image (can overflow) -->
+                <div class="card-image-a" style="top: -45px; left: 14%;">
+                    <img src="images/activities/Relaxing Chair.png" alt="relaxing-chair" style="width: 130px;">
+                </div>
+
+                <!-- inner clipped area -->
+                <div class="card-inner">
+                    <div class="ribbon-type-a">Family</div>
+
+                    <div class="card-layout-type-a">
+                        <div class="content">
+                            <h1 class="title-type-a">Relaxing Chair</h1>
+                            <p class="description-type-a">
+                                বড়রাও এতে বসে রিলাক্স করতে পারবেন।
+                            </p>
+                        </div>
                     </div>
-                    <div class="content">
-                        <h1 class="title-type-b">Laptop / Side Table</h1>
-                        <p class="description-type-b">
-                            চাইলে এটাকে লেপটপ বা সাইড টেবিল হিসাবেও ব্যবহার করতে পারবেন
-                        </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <!-- product image (can overflow) -->
+                <div class="card-image-b" style="top: -56px; right: -18%;">
+                    <img src="images/activities/Laptop _ Side Table.png" alt="laptop-side-table" style="width: 130px;">
+                </div>
+
+                <!-- inner clipped area -->
+                <div class="card-inner">
+                    <div class="ribbon-type-b">Multi-use</div>
+
+                    <div class="card-layout-type-b">
+                        <div class="content">
+                            <h1 class="title-type-b">Laptop / Side Table</h1>
+                            <p class="description-type-b">
+                                চাইলে এটাকে লেপটপ বা সাইড টেবিল হিসাবেও ব্যবহার করতে পারবেন
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
