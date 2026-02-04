@@ -119,13 +119,10 @@ function GAInitiatePurchaseEvent(products, total) {
             items: items
         }
     });
-
-    console.log("🔥 purchase pushed to dataLayer");
 }
 
 
 // function GAInitiatePurchaseEvent(products, total) {
-//     console.log("🔥 begin_checkout function CALLED");
 //     items = products.map(p => ({
 //         item_id: p.id,
 //         item_name: p.name,
@@ -137,7 +134,6 @@ function GAInitiatePurchaseEvent(products, total) {
 //         value: Number(total),
 //         items: items
 //     });
-//     console.log("begin_checkout fired")
 // }
 
 
