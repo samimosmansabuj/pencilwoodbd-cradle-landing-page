@@ -11,7 +11,7 @@
         document.querySelectorAll(".product-new-price").forEach(el => {
             el.textContent = toBanglaNumber(Math.floor(data.discount_price));
         })
-    } catch{
+    } catch (e) {
         console.log("Product fetch errro:", e);
     }
 })();
@@ -42,7 +42,7 @@ galleryImages.forEach(img => {
 
 
 // *** District List Fetch ***
-const districtSelect = document.getElementById('deliverydistrict');
+const districtSelect = document.getElementById("deliverydistrict");
 fetch('https://bdapi.vercel.app/api/v.1/district').then(response => response.json()).then(data => {
     if (data.status === 200 && data.success) {
         data.data.forEach(district => {
@@ -55,11 +55,11 @@ fetch('https://bdapi.vercel.app/api/v.1/district').then(response => response.jso
     }
 })
 .catch(error => console.log('Error fetching district:', error))
-districtSelect.addEventListener("change", function(){
-    const district = this.value;
-    if (!district) return;
-    // fetchDeliveryCharge({ district });
-})
+// districtSelect.addEventListener("change", function(){
+//     const district = this.value;
+//     if (!district) return;
+//     // fetchDeliveryCharge({ district });
+// })
 
 
 
@@ -127,6 +127,49 @@ openBtns.forEach(btn => {
     });
 });
 
+
+
+
+function getProductDeliveryCharge(product, district) {
+    const dc = product.delivery_charge;
+    if (!dc) {
+        return district === "dhaka" ? 80 : 120;
+    }
+    if (dc.area_and_charge?.all !== undefined) {
+        return dc.area_and_charge.all;
+    }
+    if (dc.all !== undefined) {
+        return dc.all;
+    }
+
+    // Area-set priority order
+    const areaSets = ["area-set-1", "area-set-2", "area-set-3"];
+    area_and_charge = dc.area_and_charge
+    for (const key of areaSets) {
+        if (!area_and_charge[key]) continue;
+
+        const { area, charge } = area_and_charge[key];
+        if (
+            area.includes("all") ||
+            area.includes(district)
+        ) {
+            return charge;
+        }
+    }
+    return district === "dhaka" ? 80 : 120;
+}
+function calculateDeliveryChargeFromSummary(district, quantities) {
+    let highestCharge = 0;
+    products.forEach(product => {
+        const qty = quantities[product.id] || 0;
+        if (qty > 0) {
+            const charge = getProductDeliveryCharge(product, district);
+            highestCharge = Math.max(highestCharge, charge);
+        }
+    });
+    return highestCharge;
+}
+
 function setupModalProducts(){
     // ---------- Summary Elements ----------
     const productSummary = document.getElementById("productSummary");
@@ -134,20 +177,24 @@ function setupModalProducts(){
     const summaryTotalEl = document.getElementById("summaryTotal");
     const deliveryChargeEl = document.getElementById("summaryDelivery");
 
-    // Handle delivery district change
-    let deliveryCharge = parseInt(deliveryChargeEl.textContent.replace(/[^0-9]/g, "")) || 100;
-    document.getElementById("deliverydistrict").addEventListener("change", function(){
-        const charge = (this.value === "dhaka") ? 80 : 120;
-        deliveryCharge = charge;
-        deliveryChargeEl.innerText = charge;
-        updateSummary();
-    });
-
     // Initialize quantities
-    const quantities = {};
+    let quantities = {};
     products.forEach((product, index) => {
         quantities[product.id] = index === 0 ? 1 : 0;
     });
+
+
+    // DELIVERY CHARGE CALCULATE 
+    let deliveryCharge = calculateDeliveryChargeFromSummary(
+        document.getElementById("deliverydistrict").value, quantities
+    );
+    deliveryChargeEl.innerText = deliveryCharge;
+    document.getElementById("deliverydistrict").addEventListener("change", function () {
+        deliveryCharge = calculateDeliveryChargeFromSummary(this.value, quantities);
+        deliveryChargeEl.innerText = deliveryCharge;
+        updateSummary();
+    });
+    
 
     // Setup qty buttons
     products.forEach(product => {
@@ -181,7 +228,7 @@ function setupModalProducts(){
                 // --- Main product ---
                 const total_amount = qty * product.discount_price;
                 productTotal += total_amount;
-                productSummary.appendChild(createRow(product.name, product.id, qty, product.discount_price, total_amount));
+                productSummary.appendChild(createRow(product.name, product.id, qty, product.discount_price, total_amount, "MAIN"));
 
                 // --- Gift products ---
                 const gift_products = product.gift_product || [];
@@ -209,44 +256,28 @@ function setupModalProducts(){
                     else if (gift.gift_type === "PERCENTAGE") giftTitle += ` (${gift.value}% OFF)`;
 
                     productSummary.appendChild(
-                        createRow(giftTitle, giftProd.id, qty, giftUnitPrice, giftTotal)
+                        createRow(giftTitle, giftProd.id, qty, giftUnitPrice, giftTotal, "FREE", product.id)
                     );
                 });
-                // gift_products.forEach(gift => {
-                //     const giftProd = gift.gift_product;
-                //     let giftUnitPrice = giftProd.discount_price;
-
-                //     let giftAmount = 0;
-                //     let giftTitle = giftProd.name;
-
-                //     if (gift.gift_type === "FREE") {
-                //         giftAmount = 0;
-                //         giftTitle += " (FREE)";
-                //     } else if (gift.gift_type === "FLAT") {
-                //         giftAmount = gift.value * qty;
-                //         giftTitle += ` (−৳${giftAmount})`;
-                //     } else if (gift.gift_type === "PERCENTAGE") {
-                //         giftAmount = (gift.value / 100) * product.discount_price * qty;
-                //         giftTitle += ` (${gift.value}% OFF)`;
-                //     }
-
-                //     // subtract discount if FLAT or PERCENTAGE
-                //     productTotal -= giftAmount;
-                //     productSummary.appendChild(
-                //         createRow(giftTitle, giftProd.id, qty, giftAmount, giftAmount)
-                //     );
-                // });
             }
         });
+
+        deliveryCharge = calculateDeliveryChargeFromSummary(
+            document.getElementById("deliverydistrict").value,
+            quantities
+        );
+        deliveryChargeEl.innerText = deliveryCharge;
 
         productTotalEl.innerText = productTotal;
         summaryTotalEl.innerText = productTotal + deliveryCharge;
     }
 
-    function createRow(title, product_id, qty, unit_amount, total_amount) {
+    function createRow(title, product_id, qty, unit_amount, total_amount, product_type, reference_id=null) {
         const row = document.createElement("div");
         row.className = "summary-row";
         row.dataset.productId = product_id;
+        row.dataset.referenceId = reference_id;
+        row.dataset.productType = product_type;
         row.dataset.productUnitPrice = unit_amount;
         row.innerHTML = `
             <span class="product_name">${title}</span>
@@ -314,11 +345,15 @@ document.getElementById("orderForm").addEventListener("submit", async function (
         const contents = [];
         allRows.forEach(row => {
             const product_id = row.dataset.productId;
+            const product_type = row.dataset.productType;
+            const reference_id = row.dataset.referenceId;
             const product_unit_price = row.dataset.productUnitPrice;
             const product_title = row.querySelector(".product_name")?.textContent.trim() || "";
             const qty = Number(row.querySelector(".qty")?.textContent) || 0;
             const total_amount = parseFloat(row.querySelector(".total_amount")?.textContent) || 0;
             contents.push({
+                product_type: product_type,
+                reference_product: reference_id,
                 id: product_id,
                 name: product_title,
                 price: product_unit_price,
@@ -353,6 +388,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     try {
+        // ----- ALTERNATIVE ORDER SUBMISSION METHOD -----
         const response = await fetch(`${ENV.API_BASE_URL}/api/create-order/`, {
             method: "POST",
             headers: {
@@ -366,46 +402,33 @@ document.getElementById("orderForm").addEventListener("submit", async function (
             throw new Error(`Server error: ${response.status} - ${errorText}`);
         }
         const data = await response.json();
-        console.log("Order created:", data);
+        if (data.success){
+            // ----- PIXEL PURCHASE SETUP -----
+            FacebookPurchaseEvent(getProductJSON(), content_name, summaryTotal);
+            
+            lockModal = true;
+            modalContent.innerHTML = "";
+            modalContent.appendChild(OrderCompleteCard());
+            loader.classList.add("hidden");
+            document.body.style.overflow = 'hidden';
+            
 
-        // ----- ALTERNATIVE ORDER SUBMISSION METHOD -----
-        // const response = await fetch("https://crm-server-kappa.vercel.app/api/orders", {
-        //     method: "POST",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //         "Accept": "application/json"
-        //     },
-        //     body: JSON.stringify(formData)
-        // });
-
-        // if (!response.ok) {
-        //     const errorText = await response.text();
-        //     throw new Error(`Server error: ${response.status} - ${errorText}`);
-        // }
-
-        // const data = await response.json();
-
-        // ----- PIXEL PURCHASE SETUP -----
-        FacebookPurchaseEvent(getProductJSON(), content_name, summaryTotal);
-        
-        lockModal = true;
-        modalContent.innerHTML = "";
-        modalContent.appendChild(OrderCompleteCard());
-        loader.classList.add("hidden");
-        document.body.style.overflow = 'hidden';
-        
-
-        let countdown = 10;
-        const countdownEl = document.getElementById("countdown");
-        const interval = setInterval(() => {
-            countdown -= 1;
-            countdownEl.textContent = countdown;
-            if (countdown <= 0) {
-                clearInterval(interval);
-                window.location.href = "/";
-            }
-        }, 1000);
-        // window.location.href = "/thank-you";
+            let countdown = 10;
+            const countdownEl = document.getElementById("countdown");
+            const interval = setInterval(() => {
+                countdown -= 1;
+                countdownEl.textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    window.location.href = "/";
+                }
+            }, 1000);
+        } else{
+            alert("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + data.message);
+            loader.classList.add("hidden");
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+        }
     } catch (err) {
         alert("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + err.message);
         loader.classList.add("hidden");

@@ -34,6 +34,16 @@
     </script>
     <!-- End Facebook Pixel Code -->
     <!-- {% endif %} -->
+    <!-- Google Tag Manager -->
+    <!-- <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-ML7CMB2K');</script> -->
+    <!-- End Google Tag Manager -->
 </head>
 
 <body>
@@ -83,12 +93,13 @@
 
                     <div class="price-div">
                         <div class="old-price-div">
-                            <span class="old-price product-old-price">৭৯৮০ </span> <sub class="money-name">টাকার </sub> <span
-                                class="product-name">ক্রেডেল</span>
+                            <span class="old-price product-old-price">৭৯৮০ </span> <sub class="money-name">টাকার </sub>
+                            <span class="product-name">ক্রেডেল</span>
                         </div>
 
                         <div class="new-price-div">
-                            <span class="product-name">পেয়ে যাচ্ছেন মাত্র</span> <span class="new-price product-new-price">৩৯৯০</span>
+                            <span class="product-name">পেয়ে যাচ্ছেন মাত্র</span> <span
+                                class="new-price product-new-price">৩৯৯০</span>
                             <sub class="money-name">টাকায় </sub>
                         </div>
 
@@ -142,9 +153,9 @@
                 <div class="ribbon-type-a">Study</div>
                 <div class="card-layout-type-a">
                     <div class="img">
-
+                        <img src="images/activities/Reading Table.png" alt="reading-table">
                     </div>
-                    <div>
+                    <div class="content">
                         <h1 class="title-type-a">Reading Table</h1>
                         <p class="description-type-a">
                             উচ্চতা অনুযায়ী perfect সাইজ - ড্রয়িং,
@@ -153,12 +164,43 @@
                     </div>
                 </div>
             </div>
+            <style>
+                .card {
+                    position: relative;
+                }
+
+                .card-layout-type-a {
+                    position: relative;
+                }
+
+                .card-layout-type-a .img {
+                    position: fixed;
+                    /* position: absolute; */
+                    top: -60px;
+                    left: -30px;
+                    width: 150px;
+                    height: 150px;
+                    z-index: 999999;
+                    pointer-events: none;
+                }
+
+                .card-layout-type-a .img img {
+                    width: 100%;
+                    height: auto;
+                    object-fit: contain;
+                    border-radius: 8px;
+                }
+
+                .card-layout-type-a .content {
+                    padding-left: 80px;
+                }
+            </style>
 
             <div class="card">
                 <div class="ribbon-type-b">Play</div>
                 <div class="card-layout-type-b">
                     <div class="img">
-
+                        <img src="images/activities/Swing _ দোলনা.png" alt="swing-dholna">
                     </div>
                     <div>
                         <h1 class="title-type-b">Swing / দোলনা</h1>
@@ -173,7 +215,7 @@
                 <div class="ribbon-type-a">Movement</div>
                 <div class="card-layout-type-a">
                     <div class="img">
-
+                        <img src="images/activities/Activity Tool.png" alt="activities-tools">
                     </div>
                     <div>
                         <h1 class="title-type-a">Activity Tool</h1>
@@ -189,6 +231,7 @@
                 <div class="ribbon-type-b">Storage</div>
                 <div class="card-layout-type-b">
                     <div class="img">
+                        <img src="images/activities/Toy Stoarage.png" alt="toy-stoarage">
                     </div>
                     <div>
                         <h1 class="title-type-b">Toy Storage</h1>
@@ -203,7 +246,7 @@
                 <div class="ribbon-type-a">Sports</div>
                 <div class="card-layout-type-a">
                     <div class="img">
-
+                        <img src="images/activities/Football Goalpost.png" alt="football-goalpost">
                     </div>
                     <div>
                         <h1 class="title-type-a">Football Goalpost</h1>
@@ -218,7 +261,7 @@
                 <div class="ribbon-type-b">Imagination</div>
                 <div class="card-layout-type-b">
                     <div class="img">
-
+                        <img src="images/activities/Mini Camping Tent.png" alt="mini-camping-tent">
                     </div>
                     <div>
                         <h1 class="title-type-b">Mini Camping Tent</h1>
@@ -233,7 +276,7 @@
                 <div class="ribbon-type-a">Family</div>
                 <div class="card-layout-type-a">
                     <div class="img">
-
+                        <img src="images/activities/Relaxing Chair.png" alt="relaxing-chair">
                     </div>
                     <div>
                         <h1 class="title-type-a">Relaxing Chair</h1>
@@ -248,7 +291,7 @@
                 <div class="ribbon-type-b">Multi-use</div>
                 <div class="card-layout-type-b">
                     <div class="img">
-
+                        <img src="images/activities/Laptop _ Side Table.png" alt="laptop-side-table">
                     </div>
                     <div>
                         <h1 class="title-type-b">Laptop / Side Table</h1>
@@ -264,7 +307,8 @@
         <div class="sticky-order-bar">
             <div class="sticky-order-price">
                 আজকের অফার প্রাইস:
-                <div><strong id="stickyTotalPrice">৳ <span id="productPrice" data-product-id="1" class="product-new-price">3990</span></strong>
+                <div><strong id="stickyTotalPrice">৳ <span id="productPrice" data-product-id="1"
+                            class="product-new-price">3990</span></strong>
                     <span style="font-size:11px;color:#9ca3af;">(ডেলিভারি ফ্রি)</span>
                 </div>
             </div>
@@ -411,7 +455,7 @@
 
                             <div class="form-group">
                                 <div class="product-card-grid" id="productCardGrid">
-                                    
+
                                 </div>
                             </div>
 
@@ -434,7 +478,7 @@
                             </div>
                             <div class="summary-row">
                                 <span>ডেলিভারি চার্জ</span>
-                                <strong>৳<span id="summaryDelivery">100</span></strong>
+                                <strong>৳<span id="summaryDelivery">0</span></strong>
                             </div>
                             <div class="summary-total">
                                 <strong>Total Price</strong>
@@ -462,9 +506,9 @@
 
     <!-- ----- ALL JS/SCRIPT FILE INCLUDE ----- -->
     <script src="env.js"></script>
-    <script src="js/script.js?v=1"></script>
-    <script src="js/custom.js?v=1"></script>
-    <script src="js/marketing.js?v=1"></script>
+    <script src="js/script.js?v=2"></script>
+    <script src="js/custom.js?v=2"></script>
+    <script src="js/marketing.js?v=2"></script>
 </body>
 
 </html>
