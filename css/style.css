@@ -1107,13 +1107,38 @@ footer {
     margin-bottom: 5px;
 }
 
+
+
 .summary-row {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    padding: 10px 0;
     font-size: 16px;
     border-bottom: 1px dashed #1e3a8a;
 }
+.summary-row .product_name {
+    flex: 1;
+    min-width: 0;
+    white-space: normal;
+}
+.summary-row .right-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    text-align: right;
+}
+.summary-row .qty-wrap {
+    width: 25px;
+    text-align: right;
+}
+.summary-row .price {
+    width: 70px;
+    text-align: right;
+    font-weight: 600;
+}
+
+
+
 
 .summary-total {
     display: flex;

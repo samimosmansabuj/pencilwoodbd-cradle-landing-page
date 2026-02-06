@@ -282,8 +282,10 @@ function setupModalProducts(){
         row.dataset.productUnitPrice = unit_amount;
         row.innerHTML = `
             <span class="product_name">${title}</span>
-            <span>x <span class="qty">${qty}</span></span>
-            <span>৳ <span class="total_amount">${total_amount}</span></span>
+            <div class="right-meta">
+                <span class="qty-wrap">x <span class="qty">${qty}</span></span>
+                <span class="price">৳ <span class="total_amount">${total_amount}</span></span>
+            </div>
         `;
         return row;
     }
@@ -317,7 +319,7 @@ function OrderCompleteCard(){
         <h2>ধন্যবাদ!</h2>
         <p>আপনার অর্ডার সফলভাবে গ্রহণ করা হয়েছে।</p>
         <p>হোমপেজে রিডিরেক্ট হবে <span id="countdown">10</span> সেকেন্ডে...</p>
-        <a href="https://wa.me/8801775155760" target="_blank" class="btn btn-primary" 
+        <a href="https://wa.me/${ENV.WHATSAPP_NUMBER}" target="_blank" class="btn btn-primary" 
         style="margin-top: 20px; display: inline-block;">
         Contact with WhatsApp
         </a>
