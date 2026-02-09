@@ -38,15 +38,6 @@ function FacebookViewContentEvent(productName, productPrice, productIds) {
         value: parseFloat(productPrice || 0),
         currency: 'BDT'
     });
-    // productPrice = document.getElementById("productPrice");
-    // if (typeof fbq !== 'function') return;
-    // fbq('track', 'ViewContent', {
-    //     content_ids: [String(productPrice.dataset.productId)],
-    //     content_name: "Cradle - Baby Product",
-    //     content_type: 'product',
-    //     value: parseFloat(productPrice.textContent || 0),
-    //     currency: 'BDT'
-    // });
 }
 function FacebookAddToCartEvent(content_ids, content_name, value) {
     if (typeof fbq !== 'function') return;
