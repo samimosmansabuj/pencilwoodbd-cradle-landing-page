@@ -50,21 +50,21 @@ function FacebookAddToCartEvent(content_ids, content_name, value) {
     });
 }
 
-function FacebookInitiateCheckEvent(contents, value) {
-    if (typeof fbq !== 'function') return;
-    fbq('track', 'InitiateCheckout', {
-        contents: contents,
-        content_type: 'product',
-        value: Number(value),
-        currency: 'BDT'
-    });
-}
+// function FacebookInitiateCheckEvent(contents, value) {
+//     if (typeof fbq !== 'function') return;
+//     fbq('track', 'InitiateCheckout', {
+//         contents: contents,
+//         content_type: 'product',
+//         value: Number(value),
+//         currency: 'BDT'
+//     });
+// }
 function GAInitiateCheckoutEvent(products, total) {
     if (!products?.length) return;
     items = products.map(p => ({
         item_id: p.id,
         item_name: p.name,
-        price: p.price,
+        price: parseFloat(p.price),
         quantity: p.quantity
     }))
 
@@ -80,24 +80,23 @@ function GAInitiateCheckoutEvent(products, total) {
     });
 }
 
-function FacebookPurchaseEvent(contents, value) {
-    if (typeof fbq !== 'function') return;
-    fbq('track', 'Purchase', {
-        value: Number(value),
-        currency: 'BDT',
-        contents: contents,
-        content_type: 'product',
-        compared_product: 'recommended-banner-toys',
-        delivery_category: 'home_delivery'
-    });
-}
+// function FacebookPurchaseEvent(contents, value) {
+//     if (typeof fbq !== 'function') return;
+//     fbq('track', 'Purchase', {
+//         value: Number(value),
+//         currency: 'BDT',
+//         contents: contents,
+//         content_type: 'product',
+//         compared_product: 'recommended-banner-toys',
+//         delivery_category: 'home_delivery'
+//     });
+// }
 function GAInitiatePurchaseEvent(products, total) {
     if (!products?.length) return;
-
     const items = products.map(p => ({
         item_id: p.id,
         item_name: p.name,
-        price: p.price,
+        price: parseFloat(p.price),
         quantity: p.quantity
     }));
 
@@ -108,24 +107,9 @@ function GAInitiatePurchaseEvent(products, total) {
             currency: "BDT",
             value: Number(total),
             items: items
-        }
+        },
     });
 }
-
-
-// function GAInitiatePurchaseEvent(products, total) {
-//     items = products.map(p => ({
-//         item_id: p.id,
-//         item_name: p.name,
-//         price: p.price,
-//         quantity: p.quantity
-//     }))
-//     gtag("event", "purchase", {
-//         currency: "BDT",
-//         value: Number(total),
-//         items: items
-//     });
-// }
 
 
 // *********//////////=========================/////////////***************
