@@ -419,7 +419,6 @@ document.getElementById("orderForm").addEventListener("submit", async function (
         return contents;
     };
     summaryTotal = parseFloat(document.getElementById('summaryTotal').textContent || 0);
-    // FacebookInitiateCheckEvent(product_details_for_event_send(), summaryTotal);
     GAInitiateCheckoutEvent(product_details_for_event_send(), summaryTotal);
     
     const formData = {
@@ -448,7 +447,6 @@ document.getElementById("orderForm").addEventListener("submit", async function (
         const data = await response.json();
         if (data.success){
             // ----- PIXEL PURCHASE SETUP -----
-            // FacebookPurchaseEvent(product_details_for_event_send(), summaryTotal);
             GAInitiatePurchaseEvent(product_details_for_event_send(), summaryTotal);
             
             lockModal = true;
