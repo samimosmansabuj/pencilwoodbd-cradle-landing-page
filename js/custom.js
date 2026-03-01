@@ -328,6 +328,11 @@ function OrderCompleteCard(){
     return thankYouCard;
 }
 
+// Order Submit Script Start =================================================
+function isValidBDPhoneNew(phone) {
+    return /^(?:\+88)?01\d{9}$/.test(phone.replace(/\s+/g, ""));
+}
+
 document.getElementById("orderForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -337,6 +342,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     loader.classList.remove("hidden");
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> প্রসেসিং...';
+    
     
     function getProductJSON() {
         const allRows = productSummary.querySelectorAll(".summary-row");
@@ -370,6 +376,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
         }
         return customer_details
     }
+    const customerData = getCustomerJSON();
     function getAmountJSON(){
         return {
             productTotal: parseFloat(document.getElementById("productTotal").textContent),
@@ -378,8 +385,15 @@ document.getElementById("orderForm").addEventListener("submit", async function (
         }
     }
     
-    if (!getCustomerJSON().name || !getCustomerJSON().phone || !getCustomerJSON().district || !getCustomerJSON().address) {
+    if (!customerData.name || !customerData.phone || !customerData.district || !customerData.address) {
         alert("অনুগ্রহ করে সমস্ত গ্রাহক তথ্য পূরণ করুন।");
+        loader.classList.add("hidden");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+        return;
+    }
+    if (!isValidBDPhoneNew(customerData.phone)) {
+        alert("অনুগ্রহ করে সঠিক বাংলাদেশি মোবাইল নম্বর লিখুন!");
         loader.classList.add("hidden");
         submitBtn.disabled = false;
         submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
@@ -422,7 +436,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     GAInitiateCheckoutEvent(product_details_for_event_send(), summaryTotal);
     
     const formData = {
-        customer: getCustomerJSON(),
+        customer: customerData,
         products: getProductJSON(),
         amount: getAmountJSON(),
         note: document.getElementById("note").value.trim() || "No Note Is Provided From Client",
@@ -479,5 +493,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
         submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
     }
 });
+// Order Submit Script End =================================================
+
 
 // Order Form Modal Open & Close Script End=================================
