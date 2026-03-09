@@ -1,5 +1,5 @@
 (async function () {
-    try{
+    try {
         const response = await fetch(`${ENV.API_BASE_URL}/api/product/`);
         const response_data = await response.json()
         const data = response_data.data[0]
@@ -55,7 +55,7 @@ fetch('https://bdapi.vercel.app/api/v.1/district').then(response => response.jso
         });
     }
 })
-.catch(error => console.log('Error fetching district:', error))
+    .catch(error => console.log('Error fetching district:', error))
 // districtSelect.addEventListener("change", function(){
 //     const district = this.value;
 //     if (!district) return;
@@ -70,14 +70,14 @@ const openBtns = document.querySelectorAll('.openOrderModal');
 const modal = document.getElementById('orderModal');
 const closeBtn = document.querySelector('.close-btn');
 
-const apiFetch = async (url, { method='GET', body, headers={} } = {}) =>
+const apiFetch = async (url, { method = 'GET', body, headers = {} } = {}) =>
     await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json', ...headers },
         body: body ? JSON.stringify(body) : undefined
     })
-    .then(r => r.ok ? r.json() : Promise.reject(r))
-    .catch(err => { console.log('API error:', err); return null; });
+        .then(r => r.ok ? r.json() : Promise.reject(r))
+        .catch(err => { console.log('API error:', err); return null; });
 
 
 openBtns.forEach(btn => {
@@ -171,7 +171,7 @@ function calculateDeliveryChargeFromSummary(district, quantities) {
     return highestCharge;
 }
 
-function setupModalProducts(){
+function setupModalProducts() {
     // ---------- Summary Elements ----------
     const productSummary = document.getElementById("productSummary");
     const productTotalEl = document.getElementById("productTotal");
@@ -195,7 +195,7 @@ function setupModalProducts(){
         deliveryChargeEl.innerText = deliveryCharge;
         updateSummary();
     });
-    
+
 
     // Setup qty buttons
     products.forEach(product => {
@@ -273,7 +273,7 @@ function setupModalProducts(){
         summaryTotalEl.innerText = productTotal + deliveryCharge;
     }
 
-    function createRow(title, product_id, qty, unit_amount, total_amount, product_type, reference_id=null) {
+    function createRow(title, product_id, qty, unit_amount, total_amount, product_type, reference_id = null) {
         const row = document.createElement("div");
         row.className = "summary-row";
         row.dataset.productId = product_id;
@@ -308,7 +308,7 @@ modal.addEventListener('click', (e) => {
 });
 
 
-function OrderCompleteCard(){
+function OrderCompleteCard() {
     const thankYouCard = document.createElement("div");
     thankYouCard.style.textAlign = "center";
     thankYouCard.style.padding = "30px 20px";
@@ -342,8 +342,8 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     loader.classList.remove("hidden");
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> প্রসেসিং...';
-    
-    
+
+
     function getProductJSON() {
         const allRows = productSummary.querySelectorAll(".summary-row");
         const contents = [];
@@ -367,7 +367,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
         });
         return contents;
     }
-    function getCustomerJSON(){
+    function getCustomerJSON() {
         customer_details = {
             name: document.getElementById("name").value.trim(),
             phone: document.getElementById("phone").value.trim(),
@@ -377,14 +377,28 @@ document.getElementById("orderForm").addEventListener("submit", async function (
         return customer_details
     }
     const customerData = getCustomerJSON();
-    function getAmountJSON(){
+    function getAmountJSON() {
         return {
             productTotal: parseFloat(document.getElementById("productTotal").textContent),
             deliveryCharge: Number(document.getElementById("summaryDelivery").textContent),
             totalAmount: parseFloat(document.getElementById('summaryTotal').textContent || 0),
         }
     }
-    
+
+    // if(!otpVerified){
+    //     alert("দয়া করে আগে মোবাইল নম্বর OTP দিয়ে ভেরিফাই করুন");
+    //     loader.classList.add("hidden");
+    //     submitBtn.disabled = false;
+    //     submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+    //     return;
+    // }
+    if (!OTPService.isVerified()) {
+        alert("দয়া করে আগে মোবাইল নম্বর OTP দিয়ে ভেরিফাই করুন");
+        loader.classList.add("hidden");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+        return;
+    }
     if (!customerData.name || !customerData.phone || !customerData.district || !customerData.address) {
         alert("অনুগ্রহ করে সমস্ত গ্রাহক তথ্য পূরণ করুন।");
         loader.classList.add("hidden");
@@ -415,7 +429,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     }
 
     // ----- PIXEL INITIATE CHECKOUT SETUP -----
-    const product_details_for_event_send = function getProductJsonForEventSend(){
+    const product_details_for_event_send = function getProductJsonForEventSend() {
         const allRows = productSummary.querySelectorAll(".summary-row");
         const contents = [];
         allRows.forEach(row => {
@@ -434,14 +448,14 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     };
     summaryTotal = parseFloat(document.getElementById('summaryTotal').textContent || 0);
     GAInitiateCheckoutEvent(product_details_for_event_send(), summaryTotal);
-    
+
     const formData = {
         customer: customerData,
         products: getProductJSON(),
         amount: getAmountJSON(),
         note: document.getElementById("note").value.trim() || "No Note Is Provided From Client",
     };
-    
+
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     try {
@@ -459,16 +473,16 @@ document.getElementById("orderForm").addEventListener("submit", async function (
             throw new Error(`Server error: ${response.status} - ${errorText}`);
         }
         const data = await response.json();
-        if (data.success){
+        if (data.success) {
             // ----- PIXEL PURCHASE SETUP -----
             GAInitiatePurchaseEvent(product_details_for_event_send(), summaryTotal);
-            
+
             lockModal = true;
             modalContent.innerHTML = "";
             modalContent.appendChild(OrderCompleteCard());
             loader.classList.add("hidden");
             document.body.style.overflow = 'hidden';
-            
+
 
             let countdown = 5;
             const countdownEl = document.getElementById("countdown");
@@ -480,7 +494,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
                     window.location.href = "/";
                 }
             }, 1000);
-        } else{
+        } else {
             alert("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + data.message);
             loader.classList.add("hidden");
             submitBtn.disabled = false;

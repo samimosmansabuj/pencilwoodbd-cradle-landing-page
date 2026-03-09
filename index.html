@@ -36,14 +36,14 @@
     <!-- {% endif %} -->
 
     <!-- Google Tag Manager -->
-    <script>(function (w, d, s, l, i) {
+    <!-- <script>(function (w, d, s, l, i) {
             w[l] = w[l] || []; w[l].push({
                 'gtm.start':
                     new Date().getTime(), event: 'gtm.js'
             }); var f = d.getElementsByTagName(s)[0],
                 j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
                     'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-ML7CMB2K');</script>
+        })(window, document, 'script', 'dataLayer', 'GTM-ML7CMB2K');</script> -->
     <!-- End Google Tag Manager -->
 
     <!-- ======================= End Facebook Pixel Code ======================= -->
@@ -456,10 +456,40 @@
                                 <label for="name">আপনার নাম</label>
                                 <input type="text" id="name" name="name" placeholder="নাম লিখুন" required />
                             </div>
-                            <div class="form-group">
+
+
+                            <!-- <div class="form-group">
                                 <label for="phone">মোবাইল নাম্বার</label>
                                 <input type="tel" id="phone" name="phone" placeholder="01XXXXXXXXX" required />
+                            </div> -->
+                            <div class="form-group">
+                                <label for="phone">মোবাইল নাম্বার</label>
+
+                                <div style="display:flex; gap:8px;">
+                                    <input type="tel" id="phone" name="phone" placeholder="01XXXXXXXXX" required style="width: 90%;">
+                                    <button type="button" id="sendOtpBtn" class="btn btn-sm btn-warning" style="border-radius: 12px; width: 10%; padding: 5px; font-size: 15px;">
+                                        OTP পাঠান
+                                    </button>
+                                </div>
+
+                                <!-- OTP FIELD -->
+                                <div id="otpSection" style="display:none; margin-top:10px;">
+                                    <div style="display:flex; gap:8px;">
+                                        <input type="text" id="otpInput" placeholder="OTP লিখুন" style="width: 90%;">
+                                        <button type="button" id="verifyOtpBtn" class="btn btn-sm btn-success" style="border-radius: 12px; width: 10%; padding: 5px; font-size: 15px;">
+                                            Verify
+                                        </button>
+                                    </div>
+
+                                    <small id="otpMessage"></small>
+                                </div>
+
+                                <div id="otpVerified" style="display:none; color:green; margin-top:6px;">
+                                    ✔ নম্বর ভেরিফাই হয়েছে
+                                </div>
                             </div>
+
+
                             <div class="form-group">
                                 <label for="deliverydistrict">ডেলিভারি লোকেশন</label>
                                 <select id="deliverydistrict" name="deliverydistrict" class="form-select" required>
@@ -529,6 +559,7 @@
     <script src="js/script.js?v=2"></script>
     <script src="js/custom.js?v=2"></script>
     <script src="js/marketing.js?v=2"></script>
+    <script src="js/otp.js?v=2"></script>
 </body>
 
 </html>
