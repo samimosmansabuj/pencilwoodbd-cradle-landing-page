@@ -1,31 +1,29 @@
-// ------------------- Product Load -------------------
-let products = []; // make products global
-
 (async function () {
     try {
         const response = await fetch(
             `${ENV.API_BASE_URL}/api/products/?landing_page_code=${ENV.PRODUCT_LANDING_PAGE_ID}`
         );
+
         const response_data = await response.json();
+        const data = response_data.data[0]; // main product
 
-        if (!response_data.status || !response_data.data.length) {
-            throw new Error("No product found");
-        }
+        document.getElementById("header-image").src = data.images[0].image;
 
-        const data = response_data.data;
+        document.querySelectorAll(".product-old-price").forEach(el => {
+            el.textContent = toBanglaNumber(Math.floor(data.price));
+        });
 
-        const mainProduct = data[0];
-        const subProducts = data.slice(1);
+        document.querySelectorAll(".product-new-price").forEach(el => {
+            el.textContent = toBanglaNumber(Math.floor(data.discount_price));
+        });
 
-        window.mainProduct = mainProduct;
-        window.subProducts = subProducts;
+        FacebookViewContentEvent(data.name, data.discount_price, data.id);
 
-    } catch (error) {
-        console.error("Product load failed:", error);
+    } catch (e) {
+        console.log("Product fetch error:", e);
     }
 })();
 
-// ------------------- Number Conversion -------------------
 function toBanglaNumber(number) {
     const eng = "0123456789";
     const bang = "০১২৩৪৫৬৭৮৯";
@@ -37,36 +35,44 @@ function toEnglishNumber(number) {
     return number.toString().split("").map(d => eng[bang.indexOf(d)] || d).join("");
 }
 
-// ------------------- Image Gallery -------------------
+
 const headerImage = document.getElementById('header-image');
 const galleryImages = document.querySelectorAll('.gallery-image');
 galleryImages.forEach(img => {
     img.addEventListener('click', () => {
-        const header_image = headerImage.src;
-        const gallery_image = img.src;
-        headerImage.src = gallery_image;
+        header_image = headerImage.src;
+        gallery_image = img.src;
+        headerImage.src = img.src;
         img.src = header_image;
     });
 });
 
-// ------------------- District Fetch -------------------
-const districtSelect = document.getElementById("deliverydistrict");
-fetch('https://bdapi.vercel.app/api/v.1/district')
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 200 && data.success) {
-            data.data.forEach(district => {
-                const option = document.createElement('option')
-                option.value = district.name.toLowerCase()
-                option.setAttribute('district_id', district.id);
-                option.textContent = district.bn_name
-                districtSelect.appendChild(option)
-            });
-        }
-    })
-    .catch(error => console.log('Error fetching district:', error));
 
-// ------------------- Modal Open & Close -------------------
+
+// *** District List Fetch ***
+const districtSelect = document.getElementById("deliverydistrict");
+fetch('https://bdapi.vercel.app/api/v.1/district').then(response => response.json()).then(data => {
+    if (data.status === 200 && data.success) {
+        data.data.forEach(district => {
+            const option = document.createElement('option')
+            option.value = district.name.toLowerCase()
+            option.setAttribute('district_id', district.id);
+            option.textContent = district.bn_name
+            districtSelect.appendChild(option)
+        });
+    }
+})
+    .catch(error => console.log('Error fetching district:', error))
+// districtSelect.addEventListener("change", function(){
+//     const district = this.value;
+//     if (!district) return;
+//     // fetchDeliveryCharge({ district });
+// })
+
+
+
+
+// Order Form Modal Open & Close Script Start=================================
 const openBtns = document.querySelectorAll('.openOrderModal');
 const modal = document.getElementById('orderModal');
 const closeBtn = document.querySelector('.close-btn');
@@ -80,10 +86,15 @@ const apiFetch = async (url, { method = 'GET', body, headers = {} } = {}) =>
         .then(r => r.ok ? r.json() : Promise.reject(r))
         .catch(err => { console.log('API error:', err); return null; });
 
+
 openBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
-        const data = await apiFetch(`${ENV.API_BASE_URL}/api/products/?landing_page_code=${ENV.PRODUCT_LANDING_PAGE_ID}`);
-        products = data.data; // <-- global
+
+        const data = await apiFetch(
+            `${ENV.API_BASE_URL}/api/products/?landing_page_code=${ENV.PRODUCT_LANDING_PAGE_ID}`
+        );
+
+        products = data.data;
 
         const grid = document.getElementById("productCardGrid");
         grid.innerHTML = "";
@@ -108,32 +119,51 @@ openBtns.forEach(btn => {
             grid.appendChild(card);
         });
 
+        // Initialize quantities and summary
         setupModalProducts(products);
 
-        const productPrice = document.getElementById("productPrice");
-        const content_ids = [String(productPrice.dataset.productId)];
-        const content_name = "Cradle - Baby Product";
-        const contentValue = parseFloat(toEnglishNumber(productPrice.textContent || 0));
+
+        // ----- PIXEL ADD TO CART SETUP -----
+        productPrice = document.getElementById("productPrice");
+        content_ids = [String(productPrice.dataset.productId)];
+        content_name = "Cradle - Baby Product";
+        contentValue = parseFloat(toEnglishNumber(productPrice.textContent || 0));
         FacebookAddToCartEvent(content_ids, content_name, contentValue);
 
+        // Show modal
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
     });
 });
 
-// ------------------- Delivery Charge -------------------
+
+
+
 function getProductDeliveryCharge(product, district) {
     const dc = product.delivery_charge;
-    if (!dc) return district === "dhaka" ? 80 : 120;
-    if (dc.area_and_charge?.all !== undefined) return dc.area_and_charge.all;
-    if (dc.all !== undefined) return dc.all;
+    if (!dc) {
+        return district === "dhaka" ? 80 : 120;
+    }
+    if (dc.area_and_charge?.all !== undefined) {
+        return dc.area_and_charge.all;
+    }
+    if (dc.all !== undefined) {
+        return dc.all;
+    }
 
+    // Area-set priority order
     const areaSets = ["area-set-1", "area-set-2", "area-set-3"];
-    const area_and_charge = dc.area_and_charge
+    area_and_charge = dc.area_and_charge
     for (const key of areaSets) {
         if (!area_and_charge[key]) continue;
+
         const { area, charge } = area_and_charge[key];
-        if (area.includes("all") || area.includes(district)) return charge;
+        if (
+            area.includes("all") ||
+            area.includes(district)
+        ) {
+            return charge;
+        }
     }
     return district === "dhaka" ? 80 : 120;
 }
@@ -149,57 +179,33 @@ function calculateDeliveryChargeFromSummary(district, quantities) {
     return highestCharge;
 }
 
-// ------------------- Modal Products & Summary -------------------
-function setupModalProducts(products) {
+function setupModalProducts() {
+    // ---------- Summary Elements ----------
     const productSummary = document.getElementById("productSummary");
     const productTotalEl = document.getElementById("productTotal");
     const summaryTotalEl = document.getElementById("summaryTotal");
     const deliveryChargeEl = document.getElementById("summaryDelivery");
 
+    // Initialize quantities
     let quantities = {};
-    products.forEach((product, index) => quantities[product.id] = index === 0 ? 1 : 0);
+    products.forEach((product, index) => {
+        quantities[product.id] = index === 0 ? 1 : 0;
+    });
 
-    function updateSummary() {
-        productSummary.innerHTML = "";
-        let productTotal = 0;
 
-        products.forEach(product => {
-            const qty = quantities[product.id];
-            if (qty <= 0) return;
-            const total_amount = qty * product.discount_price;
-            productTotal += total_amount;
-            productSummary.appendChild(createRow(product.name, product.id, qty, product.discount_price, total_amount, "MAIN"));
-
-            (product.gift_product || []).forEach(gift => {
-                const giftProd = gift.gift_product;
-                let giftUnitPrice = giftProd.discount_price;
-                if (gift.gift_type === "FREE") giftUnitPrice = 0;
-                else if (gift.gift_type === "FLAT") giftUnitPrice -= gift.value;
-                else if (gift.gift_type === "PERCENTAGE") giftUnitPrice *= (1 - gift.value / 100);
-                if (giftUnitPrice < 0) giftUnitPrice = 0;
-
-                const giftTotal = giftUnitPrice * qty;
-                productTotal += giftTotal;
-
-                let giftTitle = giftProd.name;
-                if (gift.gift_type === "FREE") giftTitle += " (FREE)";
-                else if (gift.gift_type === "FLAT") giftTitle += ` (−৳${gift.value})`;
-                else if (gift.gift_type === "PERCENTAGE") giftTitle += ` (${gift.value}% OFF)`;
-
-                productSummary.appendChild(createRow(giftTitle, giftProd.id, qty, giftUnitPrice, giftTotal, "FREE", product.id));
-            });
-        });
-
-        const currentDistrict = districtSelect.value.toLowerCase();
-        const deliveryCharge = calculateDeliveryChargeFromSummary(currentDistrict, quantities);
+    // DELIVERY CHARGE CALCULATE 
+    let deliveryCharge = calculateDeliveryChargeFromSummary(
+        document.getElementById("deliverydistrict").value, quantities
+    );
+    deliveryChargeEl.innerText = deliveryCharge;
+    document.getElementById("deliverydistrict").addEventListener("change", function () {
+        deliveryCharge = calculateDeliveryChargeFromSummary(this.value, quantities);
         deliveryChargeEl.innerText = deliveryCharge;
+        updateSummary();
+    });
 
-        productTotalEl.innerText = productTotal;
-        summaryTotalEl.innerText = productTotal + deliveryCharge;
-    }
 
-    districtSelect.addEventListener("change", updateSummary);
-
+    // Setup qty buttons
     products.forEach(product => {
         const card = document.querySelector(`.product-card[data-type='${product.name}']`);
         const minusBtn = card.querySelector(".minus");
@@ -221,6 +227,60 @@ function setupModalProducts(products) {
         });
     });
 
+    function updateSummary() {
+        productSummary.innerHTML = "";
+        let productTotal = 0;
+
+        products.forEach(product => {
+            const qty = quantities[product.id];
+            if (qty > 0) {
+                // --- Main product ---
+                const total_amount = qty * product.discount_price;
+                productTotal += total_amount;
+                productSummary.appendChild(createRow(product.name, product.id, qty, product.discount_price, total_amount, "MAIN"));
+
+                // --- Gift products ---
+                const gift_products = product.gift_product || [];
+                gift_products.forEach(gift => {
+                    const giftProd = gift.gift_product;
+                    let giftUnitPrice = giftProd.discount_price;
+
+                    // Apply gift_type discount
+                    if (gift.gift_type === "FREE") {
+                        giftUnitPrice = 0;
+                    } else if (gift.gift_type === "FLAT") {
+                        giftUnitPrice -= gift.value; // subtract flat discount
+                        if (giftUnitPrice < 0) giftUnitPrice = 0;
+                    } else if (gift.gift_type === "PERCENTAGE") {
+                        giftUnitPrice = giftUnitPrice * (1 - gift.value / 100);
+                    }
+
+                    const giftTotal = giftUnitPrice * qty; // multiply by parent product qty
+                    productTotal += giftTotal;
+
+                    // Add row to summary
+                    let giftTitle = giftProd.name;
+                    if (gift.gift_type === "FREE") giftTitle += " (FREE)";
+                    else if (gift.gift_type === "FLAT") giftTitle += ` (−৳${gift.value})`;
+                    else if (gift.gift_type === "PERCENTAGE") giftTitle += ` (${gift.value}% OFF)`;
+
+                    productSummary.appendChild(
+                        createRow(giftTitle, giftProd.id, qty, giftUnitPrice, giftTotal, "FREE", product.id)
+                    );
+                });
+            }
+        });
+
+        deliveryCharge = calculateDeliveryChargeFromSummary(
+            document.getElementById("deliverydistrict").value,
+            quantities
+        );
+        deliveryChargeEl.innerText = deliveryCharge;
+
+        productTotalEl.innerText = productTotal;
+        summaryTotalEl.innerText = productTotal + deliveryCharge;
+    }
+
     function createRow(title, product_id, qty, unit_amount, total_amount, product_type, reference_id = null) {
         const row = document.createElement("div");
         row.className = "summary-row";
@@ -241,7 +301,7 @@ function setupModalProducts(products) {
     updateSummary();
 }
 
-// ------------------- Modal Close -------------------
+
 closeBtn.addEventListener('click', () => {
     modal.classList.remove('active');
     document.body.style.overflow = '';
@@ -255,7 +315,7 @@ modal.addEventListener('click', (e) => {
     }
 });
 
-// ------------------- Order Complete Card -------------------
+
 function OrderCompleteCard() {
     const thankYouCard = document.createElement("div");
     thankYouCard.style.textAlign = "center";
@@ -272,12 +332,195 @@ function OrderCompleteCard() {
         Contact with WhatsApp
         </a>
     `;
+
     return thankYouCard;
 }
 
-// ------------------- Order Submit -------------------
+// Order Submit Script Start =================================================
 function isValidBDPhoneNew(phone) {
     return /^(?:\+88)?01\d{9}$/.test(phone.replace(/\s+/g, ""));
 }
 
-// --- Remaining order submit code stays exactly the same ---
+document.getElementById("orderForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const modalContent = document.querySelector(".modal-content");
+    const loader = document.getElementById("pageLoader");
+    const submitBtn = document.getElementById("submitBtn");
+    loader.classList.remove("hidden");
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> প্রসেসিং...';
+
+
+    function getProductJSON() {
+        const allRows = productSummary.querySelectorAll(".summary-row");
+        const contents = [];
+        allRows.forEach(row => {
+            const product_id = row.dataset.productId;
+            const product_type = row.dataset.productType;
+            const reference_id = row.dataset.referenceId;
+            const product_unit_price = row.dataset.productUnitPrice;
+            const product_title = row.querySelector(".product_name")?.textContent.trim() || "";
+            const qty = Number(row.querySelector(".qty")?.textContent) || 0;
+            const total_amount = parseFloat(row.querySelector(".total_amount")?.textContent) || 0;
+            contents.push({
+                product_type: product_type,
+                reference_product: reference_id,
+                id: product_id,
+                name: product_title,
+                price: product_unit_price,
+                quantity: qty,
+                total_amount: total_amount
+            });
+        });
+        return contents;
+    }
+    function getCustomerJSON() {
+        customer_details = {
+            name: document.getElementById("name").value.trim(),
+            phone: document.getElementById("phone").value.trim(),
+            district: document.getElementById("deliverydistrict").value.trim(),
+            address: document.getElementById("address").value.trim(),
+        }
+        return customer_details
+    }
+    const customerData = getCustomerJSON();
+    function getAmountJSON() {
+        return {
+            productTotal: parseFloat(document.getElementById("productTotal").textContent),
+            deliveryCharge: Number(document.getElementById("summaryDelivery").textContent),
+            totalAmount: parseFloat(document.getElementById('summaryTotal').textContent || 0),
+        }
+    }
+
+    // if(!otpVerified){
+    //     alert("দয়া করে আগে মোবাইল নম্বর OTP দিয়ে ভেরিফাই করুন");
+    //     loader.classList.add("hidden");
+    //     submitBtn.disabled = false;
+    //     submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+    //     return;
+    // }
+    if (!OTPService.isVerified()) {
+        alert("দয়া করে আগে মোবাইল নম্বর OTP দিয়ে ভেরিফাই করুন");
+        loader.classList.add("hidden");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+        return;
+    }
+    if (!customerData.name || !customerData.phone || !customerData.district || !customerData.address) {
+        alert("অনুগ্রহ করে সমস্ত গ্রাহক তথ্য পূরণ করুন।");
+        loader.classList.add("hidden");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+        return;
+    }
+    if (!isValidBDPhoneNew(customerData.phone)) {
+        alert("অনুগ্রহ করে সঠিক বাংলাদেশি মোবাইল নম্বর লিখুন!");
+        loader.classList.add("hidden");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+        return;
+    }
+    if (getProductJSON().length === 0) {
+        alert("অনুগ্রহ করে অন্তত একটি পণ্য নির্বাচন করুন।");
+        loader.classList.add("hidden");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+        return;
+    }
+    if (getAmountJSON().totalAmount <= 0) {
+        alert("অবৈধ অর্ডার পরিমাণ। দয়া করে পণ্য এবং পরিমাণ পরীক্ষা করুন।");
+        loader.classList.add("hidden");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+        return;
+    }
+
+    // ----- PIXEL INITIATE CHECKOUT SETUP -----
+    const product_details_for_event_send = function getProductJsonForEventSend() {
+        const allRows = productSummary.querySelectorAll(".summary-row");
+        const contents = [];
+        allRows.forEach(row => {
+            const product_id = row.dataset.productId;
+            const product_unit_price = row.dataset.productUnitPrice;
+            const product_title = row.querySelector(".product_name")?.textContent.trim() || "";
+            const qty = Number(row.querySelector(".qty")?.textContent) || 0;
+            contents.push({
+                id: product_id,
+                name: product_title,
+                quantity: qty,
+                price: product_unit_price,
+            });
+        });
+        return contents;
+    };
+    summaryTotal = parseFloat(document.getElementById('summaryTotal').textContent || 0);
+    GAInitiateCheckoutEvent(product_details_for_event_send(), summaryTotal);
+
+    const formData = {
+        name: customerData.name,
+        phone: customerData.phone,
+        address: customerData.address,
+        district: customerData.district,
+        items: getProductJSON().map(p => ({
+            product_id: p.id,
+            quantity: p.quantity
+        })),
+        note: document.getElementById("note").value.trim() || ""
+    };
+
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    try {
+        // ----- ALTERNATIVE ORDER SUBMISSION METHOD -----
+        const response = await fetch(`${ENV.API_BASE_URL}/api/order/create/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(formData)
+        });
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server error: ${response.status} - ${errorText}`);
+        }
+        const data = await response.json();
+        if (data.status) {
+            // ----- PIXEL PURCHASE SETUP -----
+            GAInitiatePurchaseEvent(product_details_for_event_send(), summaryTotal);
+
+            lockModal = true;
+            modalContent.innerHTML = "";
+            modalContent.appendChild(OrderCompleteCard());
+            loader.classList.add("hidden");
+            document.body.style.overflow = 'hidden';
+
+
+            let countdown = 5;
+            const countdownEl = document.getElementById("countdown");
+            const interval = setInterval(() => {
+                countdown -= 1;
+                countdownEl.textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    window.location.href = "/";
+                }
+            }, 1000);
+        } else {
+            alert("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + data.message);
+            loader.classList.add("hidden");
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+        }
+    } catch (err) {
+        alert("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + err.message);
+        loader.classList.add("hidden");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+    }
+});
+// Order Submit Script End =================================================
+
+
+// Order Form Modal Open & Close Script End=================================
