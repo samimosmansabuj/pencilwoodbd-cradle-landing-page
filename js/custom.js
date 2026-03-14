@@ -1,19 +1,26 @@
 (async function () {
     try {
-        const response = await fetch(`${ENV.API_BASE_URL}/api/product/`);
-        const response_data = await response.json()
-        const data = response_data.data[0]
+        const response = await fetch(
+            `${ENV.API_BASE_URL}/api/products/?landing_page_code=${ENV.PRODUCT_LANDING_PAGE_ID}`
+        );
+
+        const response_data = await response.json();
+        const data = response_data.data[0]; // main product
 
         document.getElementById("header-image").src = data.images[0].image;
+
         document.querySelectorAll(".product-old-price").forEach(el => {
             el.textContent = toBanglaNumber(Math.floor(data.price));
         });
+
         document.querySelectorAll(".product-new-price").forEach(el => {
             el.textContent = toBanglaNumber(Math.floor(data.discount_price));
-        })
-        FacebookViewContentEvent(data.name, data.discount_price, data.id)
+        });
+
+        FacebookViewContentEvent(data.name, data.discount_price, data.id);
+
     } catch (e) {
-        console.log("Product fetch errro:", e);
+        console.log("Product fetch error:", e);
     }
 })();
 
@@ -82,15 +89,16 @@ const apiFetch = async (url, { method = 'GET', body, headers = {} } = {}) =>
 
 openBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
-        // Fetch products
-        const data = await apiFetch(`${ENV.API_BASE_URL}/api/product/`);
-        products = data.data
 
-        // Create Grid
+        const data = await apiFetch(
+            `${ENV.API_BASE_URL}/api/products/?landing_page_code=${ENV.PRODUCT_LANDING_PAGE_ID}`
+        );
+
+        products = data.data;
+
         const grid = document.getElementById("productCardGrid");
         grid.innerHTML = "";
 
-        // Render products dynamically
         products.forEach((product, index) => {
             const card = document.createElement("div");
             card.className = `product-card selectable ${index === 0 ? "active" : ""}`;
@@ -450,17 +458,22 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     GAInitiateCheckoutEvent(product_details_for_event_send(), summaryTotal);
 
     const formData = {
-        customer: customerData,
-        products: getProductJSON(),
-        amount: getAmountJSON(),
-        note: document.getElementById("note").value.trim() || "No Note Is Provided From Client",
+        name: customerData.name,
+        phone: customerData.phone,
+        address: customerData.address,
+        district: customerData.district,
+        items: getProductJSON().map(p => ({
+            product_id: p.id,
+            quantity: p.quantity
+        })),
+        note: document.getElementById("note").value.trim() || ""
     };
 
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     try {
         // ----- ALTERNATIVE ORDER SUBMISSION METHOD -----
-        const response = await fetch(`${ENV.API_BASE_URL}/api/create-order/`, {
+        const response = await fetch(`${ENV.API_BASE_URL}/api/order/create/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -473,7 +486,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
             throw new Error(`Server error: ${response.status} - ${errorText}`);
         }
         const data = await response.json();
-        if (data.success) {
+        if (data.status) {
             // ----- PIXEL PURCHASE SETUP -----
             GAInitiatePurchaseEvent(product_details_for_event_send(), summaryTotal);
 
