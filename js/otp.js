@@ -43,15 +43,37 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
 
     try {
         const otp = OTPService.generateOTP();
-        const message = `আপনার OTP: ${otp}`;
-        const payload = {
-            SenderId: "BUYOLX",
-            ApiKey: ENV.SMS_API_KEY,
-            ClientId: ENV.SMS_CLIENT_ID,
-            Message: message,
-            MobileNumbers: phone,
-            Is_Unicode: true
-        };
+        const message = `আপনার ওটিপি হলো: ${otp}`;
+        // const payload = {
+        //     SenderId: "BUYOLX",
+        //     ApiKey: ENV.SMS_API_KEY,
+        //     ClientId: ENV.SMS_CLIENT_ID,
+        //     Message: message,
+        //     MobileNumbers: phone,
+        //     Is_Unicode: true
+        // };
+
+        const queryParams = new URLSearchParams({
+            senderid: ENV.SMS_SENDER_ID,
+            api_key: ENV.SMS_API_KEY,
+            type: "text",
+            msg: message,
+            contacts: phone,
+        });
+        const url = `https://msg.mram.com.bd/smsapi?${queryParams.toString()}`;
+        const res = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
+        });
+        if (!res.ok) {
+            throw new Error(`HTTP error: ${res.status}`);
+        }
+        console.log("SMS API res:", res.res);
+        console.log("SMS API Status:", res.status);
+        const data = await res.json();
+        console.log("SMS API Response:", data);
 
         console.log("OTP:", otp);
         document.getElementById("otpSection").style.display = "block";
@@ -77,7 +99,6 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
         // } else {
         //     alert("OTP পাঠাতে সমস্যা হয়েছে\n" + data.ErrorDescription);
         // }
-
     } catch (err) {
         console.error("OTP Send Error:", err);
         alert("OTP পাঠাতে সমস্যা হয়েছে! আবার চেষ্টা করুন।");
