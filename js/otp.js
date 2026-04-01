@@ -49,8 +49,9 @@ document.getElementById("verifyOtpBtn").addEventListener("click", async function
         });
 
         const data = await res.json();
-
-        if (data.success) {
+        
+        if (data.verified) {
+            document.getElementById("sendOtpBtn").disabled = true;
             document.getElementById("otpSection").style.display = "none";
             document.getElementById("otpVerified").style.display = "block";
             document.getElementById("phone").readOnly = true;
