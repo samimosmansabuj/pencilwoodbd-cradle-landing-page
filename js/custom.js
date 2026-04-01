@@ -329,9 +329,6 @@ function OrderCompleteCard() {
 }
 
 // Order Submit Script Start =================================================
-function isValidBDPhoneNew(phone) {
-    return /^(?:\+88)?01\d{9}$/.test(phone.replace(/\s+/g, ""));
-}
 
 document.getElementById("orderForm").addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -392,7 +389,9 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     //     submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
     //     return;
     // }
-    if (!OTPService.isVerified()) {
+    // frontend now assumes OTP verified via /verify-otp/ before order submit
+    const otpVerifiedEl = document.getElementById("otpVerified");
+    if (otpVerifiedEl.style.display !== "block") {
         alert("দয়া করে আগে মোবাইল নম্বর OTP দিয়ে ভেরিফাই করুন");
         loader.classList.add("hidden");
         submitBtn.disabled = false;
@@ -454,6 +453,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
         products: getProductJSON(),
         amount: getAmountJSON(),
         note: document.getElementById("note").value.trim() || "No Note Is Provided From Client",
+        otp_required: true,
     };
 
     await new Promise(resolve => setTimeout(resolve, 2000));

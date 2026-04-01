@@ -1,121 +1,74 @@
-const OTPService = (function () {
-    let generatedOTP = null;
-    let verified = false;
-    let phoneLocked = null;
+function isValidBDPhoneNew(phone) {
+    return /^(?:\+88)?01\d{9}$/.test(phone.replace(/\s+/g, ""));
+}
 
-    function generateOTP() {
-        generatedOTP = Math.floor(100000 + Math.random() * 900000);
-        return generatedOTP;
-    }
-
-    function verifyOTP(input, phone) {
-        if (String(input) === String(generatedOTP)) {
-            verified = true;
-            phoneLocked = phone;
-            return true;
-        }
-        return false;
-    }
-
-    function isVerified() {
-        return verified;
-    }
-
-    function lockedPhone() {
-        return phoneLocked;
-    }
-
-    return {
-        generateOTP,
-        verifyOTP,
-        isVerified,
-        lockedPhone
-    }
-})();
-
-
+// Send OTP
 document.getElementById("sendOtpBtn").addEventListener("click", async function () {
     const phone = document.getElementById("phone").value.trim();
+
     if (!isValidBDPhoneNew(phone)) {
         alert("সঠিক মোবাইল নম্বর দিন");
         return;
     }
 
     try {
-        const otp = OTPService.generateOTP();
-        const message = `আপনার ওটিপি হলো: ${otp}`;
-        // const payload = {
-        //     SenderId: "BUYOLX",
-        //     ApiKey: ENV.SMS_API_KEY,
-        //     ClientId: ENV.SMS_CLIENT_ID,
-        //     Message: message,
-        //     MobileNumbers: phone,
-        //     Is_Unicode: true
-        // };
+        const res = await fetch(`${ENV.API_BASE_URL}/api/send-otp/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone })
+        });
 
-        const queryParams = new URLSearchParams({
-            senderid: ENV.SMS_SENDER_ID,
-            api_key: ENV.SMS_API_KEY,
-            type: "text",
-            msg: message,
-            contacts: phone,
-        });
-        const url = `https://msg.mram.com.bd/smsapi?${queryParams.toString()}`;
-        const res = await fetch(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            },
-        });
-        if (!res.ok) {
-            throw new Error(`HTTP error: ${res.status}`);
-        }
-        console.log("SMS API res:", res.res);
-        console.log("SMS API Status:", res.status);
         const data = await res.json();
-        console.log("SMS API Response:", data);
 
-        console.log("OTP:", otp);
-        document.getElementById("otpSection").style.display = "block";
-        document.getElementById("otpMessage").innerText = "OTP পাঠানো হয়েছে";
-        // const res = await fetch("http://console.smsq.global/api/v2/SendSMS", {
-        //     method: "POST",
-        //     headers: {
-        //         "Content-Type": "application/json"
-        //     },
-        //     body: JSON.stringify(payload)
-        // });
-        // if (!res.ok) {
-        //     throw new Error(`HTTP error: ${res.status}`);
-        // }
+        if (data.success) {
+            document.getElementById("otpSection").style.display = "block";
+            document.getElementById("otpMessage").innerText = "OTP পাঠানো হয়েছে";
+            document.getElementById("otpMessage").style.color = "green";
+        } else {
+            throw new Error(data.message || "OTP failed");
+        }
 
-        // const data = await res.json();
-
-        // if (data.ErrorCode === 0) {
-        //     console.log("OTP:", otp);
-        //     document.getElementById("otpSection").style.display = "block";
-        //     document.getElementById("otpMessage").innerText = "OTP পাঠানো হয়েছে";
-        //     document.getElementById("otpMessage").style.color = "green";
-        // } else {
-        //     alert("OTP পাঠাতে সমস্যা হয়েছে\n" + data.ErrorDescription);
-        // }
     } catch (err) {
-        console.error("OTP Send Error:", err);
-        alert("OTP পাঠাতে সমস্যা হয়েছে! আবার চেষ্টা করুন।");
+        console.error(err);
+        alert("OTP পাঠাতে সমস্যা হয়েছে!");
     }
 });
 
-document.getElementById("verifyOtpBtn").addEventListener("click", function () {
+// Verify OTP — backend verification
+document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
     const otp = document.getElementById("otpInput").value.trim();
     const phone = document.getElementById("phone").value.trim();
-    const valid = OTPService.verifyOTP(otp, phone);
 
-    if (valid) {
-        document.getElementById("otpSection").style.display = "none";
-        document.getElementById("otpVerified").style.display = "block";
-        document.getElementById("phone").readOnly = true;
-    } else {
-        document.getElementById("otpMessage").innerText = "ভুল OTP";
-        document.getElementById("otpMessage").style.color = "red";
+    if (!otp || !phone) return;
+
+    try {
+        const res = await fetch(`${ENV.API_BASE_URL}/api/verify-otp/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone, otp })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            document.getElementById("otpSection").style.display = "none";
+            document.getElementById("otpVerified").style.display = "block";
+            document.getElementById("phone").readOnly = true;
+            document.getElementById("otpMessage").innerText = "OTP Verified!";
+            document.getElementById("otpMessage").style.color = "green";
+        } else {
+            document.getElementById("otpMessage").innerText = data.message || "ভুল OTP";
+            document.getElementById("otpMessage").style.color = "red";
+        }
+    } catch (err) {
+        console.error(err);
+        alert("OTP verify করতে সমস্যা হয়েছে!");
     }
+});
+
+// Reset OTP if phone changes
+document.getElementById("phone").addEventListener("input", function () {
+    document.getElementById("otpSection").style.display = "none";
+    document.getElementById("otpVerified").style.display = "none";
+    document.getElementById("otpMessage").innerText = "";
 });
