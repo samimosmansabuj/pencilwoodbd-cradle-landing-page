@@ -18,17 +18,17 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
         sendOtpBtn.disabled = true;
 
         // ===== TEST MODE: Comment out real API =====
-        // const res = await fetch(`${ENV.API_BASE_URL}/api/send-otp/`, {
-        //     method: "POST",
-        //     headers: { "Content-Type": "application/json" },
-        //     body: JSON.stringify({ phone })
-        // });
-        // const data = await res.json();
+        const res = await fetch(`${ENV.API_BASE_URL}/api/send-otp/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone })
+        });
+        const data = await res.json();
 
         // ✅ Mock OTP for testing
-        const mockOtp = Math.floor(100000 + Math.random() * 900000).toString();
-        console.log("Generated OTP (for testing):", mockOtp);
-        const data = { success: true, otp: mockOtp };
+        // const mockOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        // console.log("Generated OTP (for testing):", mockOtp);
+        // const data = { success: true, otp: mockOtp };
 
         if (data.success) {
             document.getElementById("otpSection").style.display = "block";
@@ -87,15 +87,15 @@ async function verifyOtp(otp) {
 
     try {
         // ===== TEST MODE: Comment out real API =====
-        // const res = await fetch(`${ENV.API_BASE_URL}/api/verify-otp/`, {
-        //     method: "POST",
-        //     headers: { "Content-Type": "application/json" },
-        //     body: JSON.stringify({ phone, otp })
-        // });
-        // const data = await res.json();
+        const res = await fetch(`${ENV.API_BASE_URL}/api/verify-otp/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone, otp })
+        });
+        const data = await res.json();
 
         // ✅ Test verify: match with mock OTP
-        const data = { verified: otp === window.TEST_OTP };
+        // const data = { verified: otp === window.TEST_OTP };
 
         if (data.verified) {
             document.getElementById("sendOtpBtn").disabled = true;
