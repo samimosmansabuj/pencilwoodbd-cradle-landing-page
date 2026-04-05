@@ -16,23 +16,33 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
         // Loading state
         sendOtpBtn.innerText = "Sending...";
         sendOtpBtn.disabled = true;
-        const res = await fetch(`${ENV.API_BASE_URL}/api/send-otp/`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone })
-        });
 
-        const data = await res.json();
+        // ===== TEST MODE: Comment out real API =====
+        // const res = await fetch(`${ENV.API_BASE_URL}/api/send-otp/`, {
+        //     method: "POST",
+        //     headers: { "Content-Type": "application/json" },
+        //     body: JSON.stringify({ phone })
+        // });
+        // const data = await res.json();
+
+        // ✅ Mock OTP for testing
+        const mockOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        console.log("Generated OTP (for testing):", mockOtp);
+        const data = { success: true, otp: mockOtp };
 
         if (data.success) {
             document.getElementById("otpSection").style.display = "block";
-            // Success UI
             sendOtpBtn.innerText = "Sent ✓";
 
-            document.getElementById("otpInput").focus();
-            
-            document.getElementById("otpMessage").innerText = "OTP পাঠানো হয়েছে";
+            // Focus first OTP box
+            const firstBox = document.querySelector(".otp-box");
+            firstBox.focus();
+
+            document.getElementById("otpMessage").innerText = "OTP পাঠানো হয়েছে (Test Mode)";
             document.getElementById("otpMessage").style.color = "green";
+
+            // Store OTP for auto verify testing
+            window.TEST_OTP = data.otp;
         } else {
             throw new Error(data.message || "OTP failed");
         }
@@ -40,47 +50,78 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
     } catch (err) {
         console.error(err);
         alert("OTP পাঠাতে সমস্যা হয়েছে!");
-        // Reset button on error
         sendOtpBtn.innerText = "OTP পাঠান";
         sendOtpBtn.disabled = false;
     }
 });
 
-// Verify OTP — backend verification
-document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
-    const otp = document.getElementById("otpInput").value.trim();
+// OTP Box Handling
+const otpBoxes = document.querySelectorAll(".otp-box");
+
+otpBoxes.forEach((box, index) => {
+    box.addEventListener("input", () => {
+        box.value = box.value.replace(/[^0-9]/g, "");
+
+        if (box.value.length === 1 && index < otpBoxes.length - 1) {
+            otpBoxes[index + 1].focus();
+        }
+
+        // Auto verify if all boxes filled
+        const otp = Array.from(otpBoxes).map(b => b.value).join("");
+        if (otp.length === otpBoxes.length) {
+            verifyOtp(otp);
+        }
+    });
+
+    box.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !box.value && index > 0) {
+            otpBoxes[index - 1].focus();
+        }
+    });
+});
+
+// OTP Verify function
+async function verifyOtp(otp) {
     const phone = document.getElementById("phone").value.trim();
     if (!otp || !phone) return;
 
     try {
-        const res = await fetch(`${ENV.API_BASE_URL}/api/verify-otp/`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone, otp })
-        });
+        // ===== TEST MODE: Comment out real API =====
+        // const res = await fetch(`${ENV.API_BASE_URL}/api/verify-otp/`, {
+        //     method: "POST",
+        //     headers: { "Content-Type": "application/json" },
+        //     body: JSON.stringify({ phone, otp })
+        // });
+        // const data = await res.json();
 
-        const data = await res.json();
-        
+        // ✅ Test verify: match with mock OTP
+        const data = { verified: otp === window.TEST_OTP };
+
         if (data.verified) {
             document.getElementById("sendOtpBtn").disabled = true;
             document.getElementById("otpSection").style.display = "none";
             document.getElementById("otpVerified").style.display = "block";
             document.getElementById("phone").readOnly = true;
-            document.getElementById("otpMessage").innerText = "OTP Verified!";
+            document.getElementById("otpMessage").innerText = "OTP Verified! (Test Mode)";
             document.getElementById("otpMessage").style.color = "green";
         } else {
-            document.getElementById("otpMessage").innerText = data.message || "ভুল OTP";
+            document.getElementById("otpMessage").innerText = "ভুল OTP";
             document.getElementById("otpMessage").style.color = "red";
         }
     } catch (err) {
         console.error(err);
         alert("OTP verify করতে সমস্যা হয়েছে!");
     }
-});
+}
 
 // Reset OTP if phone changes
 document.getElementById("phone").addEventListener("input", function () {
     document.getElementById("otpSection").style.display = "none";
     document.getElementById("otpVerified").style.display = "none";
     document.getElementById("otpMessage").innerText = "";
+    otpBoxes.forEach(b => b.value = "");
+
+    const sendOtpBtn = document.getElementById("sendOtpBtn");
+    sendOtpBtn.innerText = "OTP পাঠান";
+    sendOtpBtn.disabled = false;
 });
