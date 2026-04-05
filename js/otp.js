@@ -17,7 +17,7 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
         sendOtpBtn.innerText = "Sending...";
         sendOtpBtn.disabled = true;
 
-        // ===== TEST MODE: Comment out real API =====
+        // ===== REAL MODE: Comment out real API =====
         const res = await fetch(`${ENV.API_BASE_URL}/api/send-otp/`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -25,7 +25,7 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
         });
         const data = await res.json();
 
-        // ✅ Mock OTP for testing
+        // ===== TEST MODE: Mock OTP for testing =====
         // const mockOtp = Math.floor(100000 + Math.random() * 900000).toString();
         // console.log("Generated OTP (for testing):", mockOtp);
         // const data = { success: true, otp: mockOtp };
@@ -38,11 +38,11 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
             const firstBox = document.querySelector(".otp-box");
             firstBox.focus();
 
-            document.getElementById("otpMessage").innerText = "OTP পাঠানো হয়েছে (Test Mode)";
+            document.getElementById("otpMessage").innerText = "OTP পাঠানো হয়েছে";
             document.getElementById("otpMessage").style.color = "green";
 
             // Store OTP for auto verify testing
-            window.TEST_OTP = data.otp;
+            // window.TEST_OTP = data.otp;
         } else {
             throw new Error(data.message || "OTP failed");
         }
@@ -57,7 +57,52 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
 
 // OTP Box Handling
 const otpBoxes = document.querySelectorAll(".otp-box");
+const otpAutoInput = document.getElementById("otpAuto");
 
+function focusOtp() {
+    otpBoxes[0].focus();
+}
+
+function setOtpToBoxes(otp) {
+    otp.split("").forEach((digit, i) => {
+        if (otpBoxes[i]) otpBoxes[i].value = digit;
+    });
+}
+
+function setOtpDisabled(state) {
+    otpBoxes.forEach(box => {
+        box.disabled = state;
+    });
+}
+
+// ============================
+// AUTO OTP DETECT (Web OTP API)
+async function startOtpListener() {
+    if ('OTPCredential' in window) {
+        try {
+            const controller = new AbortController();
+
+            const otp = await navigator.credentials.get({
+                otp: { transport: ['sms'] },
+                signal: controller.signal
+            });
+
+            if (otp && otp.code) {
+                otpAutoInput.value = otp.code;
+
+                setOtpToBoxes(otp.code);
+                verifyOtp(otp.code);
+            }
+
+        } catch (err) {
+            console.log("Auto OTP failed:", err);
+        }
+    }
+}
+// ============================
+
+// ============================
+// MANUAL INPUT HANDLING-------
 otpBoxes.forEach((box, index) => {
     box.addEventListener("input", () => {
         box.value = box.value.replace(/[^0-9]/g, "");
@@ -79,14 +124,24 @@ otpBoxes.forEach((box, index) => {
         }
     });
 });
+// ============================
 
-// OTP Verify function
+
+// ============================
+// VERIFY FUNCTION-------------
 async function verifyOtp(otp) {
     const phone = document.getElementById("phone").value.trim();
     if (!otp || !phone) return;
 
+    const messageEl = document.getElementById("otpMessage");
+
+    // Disable inputs + show processing
+    setOtpDisabled(true);
+    messageEl.innerText = "Verify Process...";
+    messageEl.style.color = "orange";
+
     try {
-        // ===== TEST MODE: Comment out real API =====
+        // ===== REAL MODE: Comment out real API Verify =====
         const res = await fetch(`${ENV.API_BASE_URL}/api/verify-otp/`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -94,7 +149,7 @@ async function verifyOtp(otp) {
         });
         const data = await res.json();
 
-        // ✅ Test verify: match with mock OTP
+        // ===== TEST MODE: match with mock OTP =====
         // const data = { verified: otp === window.TEST_OTP };
 
         if (data.verified) {
@@ -102,17 +157,35 @@ async function verifyOtp(otp) {
             document.getElementById("otpSection").style.display = "none";
             document.getElementById("otpVerified").style.display = "block";
             document.getElementById("phone").readOnly = true;
-            document.getElementById("otpMessage").innerText = "OTP Verified! (Test Mode)";
-            document.getElementById("otpMessage").style.color = "green";
+            messageEl.innerText = "OTP Verified!";
+            messageEl.style.color = "green";
         } else {
-            document.getElementById("otpMessage").innerText = "ভুল OTP";
-            document.getElementById("otpMessage").style.color = "red";
+            // Wrong OTP + enable inputs again
+            messageEl.innerText = "ভুল OTP";
+            messageEl.style.color = "red";
+
+            setOtpDisabled(false);
+
+            // optional: clear all boxes
+            otpBoxes.forEach(box => box.value = "");
+            otpBoxes[0].focus();
         }
     } catch (err) {
         console.error(err);
         alert("OTP verify করতে সমস্যা হয়েছে!");
+        setOtpDisabled(false);
     }
 }
+// ============================
+
+// ============================
+// INIT AFTER OTP SEND--------
+function onOtpSent() {
+    focusOtp();
+    startOtpListener();
+}
+// ============================
+
 
 // Reset OTP if phone changes
 document.getElementById("phone").addEventListener("input", function () {
@@ -125,3 +198,4 @@ document.getElementById("phone").addEventListener("input", function () {
     sendOtpBtn.innerText = "OTP পাঠান";
     sendOtpBtn.disabled = false;
 });
+

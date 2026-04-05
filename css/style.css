@@ -1459,6 +1459,10 @@ footer {
     transition: 0.3s;
 }
 
+.otp-box {
+    text-align: center;
+}
+
 .otp-btn:hover {
     background: #ffa000;
 }
