@@ -1435,3 +1435,86 @@ footer {
         box-shadow: 0 0 5px #ff6a00;
     }
 }
+
+/* OTP PHONE GROUP */
+.otp-phone-group {
+    display: flex;
+    gap: 10px;
+}
+
+.otp-phone-group input {
+    flex: 1;
+}
+
+/* SEND OTP BUTTON */
+.otp-btn {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: none;
+    background: #ffb300;
+    color: #000;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: 0.3s;
+}
+
+.otp-btn:hover {
+    background: #ffa000;
+}
+
+/* OTP SECTION */
+.otp-section {
+    display: none;
+    margin-top: 10px;
+}
+
+/* OTP INPUT GROUP */
+.otp-input-group {
+    display: flex;
+    gap: 10px;
+}
+
+/* OTP INPUT */
+#otpInput {
+    flex: 1;
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 6px;
+    font-weight: bold;
+}
+
+/* VERIFY BUTTON */
+.verify-btn {
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: none;
+    background: #22c55e;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.verify-btn:hover {
+    background: #16a34a;
+}
+
+/* MESSAGE */
+.otp-message {
+    display: block;
+    margin-top: 5px;
+    font-size: 13px;
+}
+
+/* VERIFIED SUCCESS */
+.otp-success {
+    display: none;
+    margin-top: 8px;
+    color: #16a34a;
+    font-weight: 600;
+    background: #ecfdf5;
+    padding: 6px 10px;
+    border-radius: 8px;
+    text-align: center;
+}

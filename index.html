@@ -465,26 +465,26 @@
                             <div class="form-group">
                                 <label for="phone">মোবাইল নাম্বার</label>
 
-                                <div style="display:flex; gap:8px;">
-                                    <input type="tel" id="phone" name="phone" placeholder="01XXXXXXXXX" required style="width: 90%;">
-                                    <button type="button" id="sendOtpBtn" class="btn btn-sm btn-warning" style="border-radius: 12px; width: 10%; padding: 5px; font-size: 15px;">
+                                <div class="otp-phone-group">
+                                    <input type="tel" id="phone" name="phone" placeholder="01XXXXXXXXX" required>
+                                    <button type="button" id="sendOtpBtn" class="otp-btn">
                                         OTP পাঠান
                                     </button>
                                 </div>
-
+                                
                                 <!-- OTP FIELD -->
-                                <div id="otpSection" style="display:none; margin-top:10px;">
-                                    <div style="display:flex; gap:8px;">
-                                        <input type="text" id="otpInput" placeholder="OTP লিখুন" style="width: 90%;">
-                                        <button type="button" id="verifyOtpBtn" class="btn btn-sm btn-success" style="border-radius: 12px; width: 10%; padding: 5px; font-size: 15px;">
+                                <div id="otpSection" class="otp-section">
+                                    <div class="otp-input-group">
+                                        <input type="text" id="otpInput" placeholder="6-digit OTP">
+                                        <button type="button" id="verifyOtpBtn" class="verify-btn">
                                             Verify
                                         </button>
                                     </div>
-
-                                    <small id="otpMessage"></small>
+                                
+                                    <small id="otpMessage" class="otp-message"></small>
                                 </div>
-
-                                <div id="otpVerified" style="display:none; color:green; margin-top:6px;">
+                                
+                                <div id="otpVerified" class="otp-success">
                                     ✔ নম্বর ভেরিফাই হয়েছে
                                 </div>
                             </div>

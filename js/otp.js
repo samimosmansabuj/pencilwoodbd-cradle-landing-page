@@ -5,6 +5,7 @@ function isValidBDPhoneNew(phone) {
 // Send OTP
 document.getElementById("sendOtpBtn").addEventListener("click", async function () {
     const phone = document.getElementById("phone").value.trim();
+    const sendOtpBtn = document.getElementById("sendOtpBtn"); 
 
     if (!isValidBDPhoneNew(phone)) {
         alert("সঠিক মোবাইল নম্বর দিন");
@@ -12,6 +13,9 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
     }
 
     try {
+        // Loading state
+        sendOtpBtn.innerText = "Sending...";
+        sendOtpBtn.disabled = true;
         const res = await fetch(`${ENV.API_BASE_URL}/api/send-otp/`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -22,6 +26,11 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
 
         if (data.success) {
             document.getElementById("otpSection").style.display = "block";
+            // Success UI
+            sendOtpBtn.innerText = "Sent ✓";
+
+            document.getElementById("otpInput").focus();
+            
             document.getElementById("otpMessage").innerText = "OTP পাঠানো হয়েছে";
             document.getElementById("otpMessage").style.color = "green";
         } else {
@@ -31,6 +40,9 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
     } catch (err) {
         console.error(err);
         alert("OTP পাঠাতে সমস্যা হয়েছে!");
+        // Reset button on error
+        sendOtpBtn.innerText = "OTP পাঠান";
+        sendOtpBtn.disabled = false;
     }
 });
 
@@ -38,7 +50,6 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
 document.getElementById("verifyOtpBtn").addEventListener("click", async function () {
     const otp = document.getElementById("otpInput").value.trim();
     const phone = document.getElementById("phone").value.trim();
-
     if (!otp || !phone) return;
 
     try {
