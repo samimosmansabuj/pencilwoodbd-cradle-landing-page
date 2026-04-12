@@ -23,7 +23,18 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ phone })
         });
-        const data = await res.json();
+        let data;
+
+        if (!res.ok) {
+            try {
+                data = await res.json();
+            } catch {
+                throw new Error(`Server error (${res.status})`);
+            }
+            throw new Error(data.message || "OTP send failed");
+        }
+
+        data = await res.json();
 
         // ===== TEST MODE: Mock OTP for testing =====
         // const mockOtp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -43,13 +54,38 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
 
             // Store OTP for auto verify testing
             // window.TEST_OTP = data.otp;
+            onOtpSent();
         } else {
             throw new Error(data.message || "OTP failed");
         }
 
     } catch (err) {
         console.error(err);
-        alert("OTP পাঠাতে সমস্যা হয়েছে!");
+    
+        let message = "OTP পাঠাতে সমস্যা হয়েছে!";
+    
+        // ✅ Network error (highest priority)
+        if (err?.message && err.message.includes("Failed to fetch")) {
+            message = "ইন্টারনেট সংযোগ সমস্যা হয়েছে!";
+        }
+    
+        // ✅ Server error
+        else if (err.message && err.message.includes("Server error")) {
+            message = "সার্ভার সমস্যা হয়েছে! পরে আবার চেষ্টা করুন।";
+        }
+    
+        // ✅ Backend message (MOST IMPORTANT)
+        else if (err.message && err.message !== "OTP send failed") {
+            message = err.message;
+        }
+    
+        // ✅ Unknown বড় error
+        else if (err.message && err.message.length > 100) {
+            message = "OTP সার্ভিসে সমস্যা হয়েছে!";
+        }
+    
+        alert(message);
+    
         sendOtpBtn.innerText = "OTP পাঠান";
         sendOtpBtn.disabled = false;
     }
