@@ -64,22 +64,22 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
     
         let message = "OTP পাঠাতে সমস্যা হয়েছে!";
     
-        // ✅ Network error (highest priority)
+        // Network error (highest priority)
         if (err?.message && err.message.includes("Failed to fetch")) {
             message = "ইন্টারনেট সংযোগ সমস্যা হয়েছে!";
         }
     
-        // ✅ Server error
+        // Server error
         else if (err.message && err.message.includes("Server error")) {
             message = "সার্ভার সমস্যা হয়েছে! পরে আবার চেষ্টা করুন।";
         }
     
-        // ✅ Backend message (MOST IMPORTANT)
+        // Backend message (MOST IMPORTANT)
         else if (err.message && err.message !== "OTP send failed") {
             message = err.message;
         }
     
-        // ✅ Unknown বড় error
+        // Unknown বড় error
         else if (err.message && err.message.length > 100) {
             message = "OTP সার্ভিসে সমস্যা হয়েছে!";
         }
