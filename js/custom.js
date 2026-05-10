@@ -1,17 +1,21 @@
 (async function () {
     try {
-        const response = await fetch(`${ENV.API_BASE_URL}/api/product/`);
+        const response = await fetch(`${ENV.API_BASE_URL}/site/api/landing-page/${ENV.PRODUCT_LANDING_PAGE_ID}/`);
         const response_data = await response.json()
-        const data = response_data.data[0]
+        if (response_data.status){
+            const data = response_data.data.product[0]
 
-        document.getElementById("header-image").src = data.images[0].image;
-        document.querySelectorAll(".product-old-price").forEach(el => {
-            el.textContent = toBanglaNumber(Math.floor(data.price));
-        });
-        document.querySelectorAll(".product-new-price").forEach(el => {
-            el.textContent = toBanglaNumber(Math.floor(data.discount_price));
-        })
-        FacebookViewContentEvent(data.name, data.discount_price, data.id)
+            document.getElementById("header-image").src = data.images[0].image;
+            document.querySelectorAll(".product-old-price").forEach(el => {
+                el.textContent = toBanglaNumber(Math.floor(data.price));
+            });
+            document.querySelectorAll(".product-new-price").forEach(el => {
+                el.textContent = toBanglaNumber(Math.floor(data.discount_price));
+            })
+            FacebookViewContentEvent(data.name, data.discount_price, data.id)
+        }else {
+            console.log("Product fetch error: ", response.message)
+        }
     } catch (e) {
         console.log("Product fetch errro:", e);
     }
@@ -83,8 +87,8 @@ const apiFetch = async (url, { method = 'GET', body, headers = {} } = {}) =>
 openBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
         // Fetch products
-        const data = await apiFetch(`${ENV.API_BASE_URL}/api/product/`);
-        products = data.data
+        const data = await apiFetch(`${ENV.API_BASE_URL}/site/api/landing-page/${ENV.PRODUCT_LANDING_PAGE_ID}/`);
+        products = data.data.product
 
         // Create Grid
         const grid = document.getElementById("productCardGrid");
@@ -460,7 +464,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
 
     try {
         // ----- ALTERNATIVE ORDER SUBMISSION METHOD -----
-        const response = await fetch(`${ENV.API_BASE_URL}/api/create-order/`, {
+        const response = await fetch(`${ENV.API_BASE_URL}/site/api/create-order/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
