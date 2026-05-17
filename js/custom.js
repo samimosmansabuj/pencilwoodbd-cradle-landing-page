@@ -1,8 +1,13 @@
 (async function () {
+    const errorUI = document.getElementById("productError");
+    const pageContent = document.getElementById("pageContent");
+    if (pageContent) pageContent.style.display = "none";
+    if (errorUI) errorUI.classList.add("hidden");
+
     try {
         const response = await fetch(`${ENV.API_BASE_URL}/site/api/landing-page/${ENV.PRODUCT_LANDING_PAGE_ID}/`);
         const response_data = await response.json()
-        if (response_data.status){
+        if (response_data.status && response_data.data?.product?.length) {
             const data = response_data.data.product[0]
 
             document.getElementById("header-image").src = data.images[0].image;
@@ -12,12 +17,21 @@
             document.querySelectorAll(".product-new-price").forEach(el => {
                 el.textContent = toBanglaNumber(Math.floor(data.discount_price));
             })
-            FacebookViewContentEvent(data.name, data.discount_price, data.id)
+            FacebookViewContentEvent(data.name, data.discount_price, data.id);
+
+            if (errorUI) errorUI.classList.add("hidden");
+            if (pageContent) pageContent.style.display = "block";
         }else {
-            console.log("Product fetch error: ", response.message)
+            throw new Error("Invalid product response");
+            if (pageContent) pageContent.style.display = "none";
+            if (errorUI) errorUI.classList.remove("hidden");
         }
     } catch (e) {
-        console.log("Product fetch errro:", e);
+        if (pageContent) pageContent.style.display = "none";
+        if (errorUI) errorUI.classList.remove("hidden");
+        setTimeout(() => {
+            location.reload();
+        }, 5000);
     }
 })();
 
@@ -457,7 +471,7 @@ document.getElementById("orderForm").addEventListener("submit", async function (
         products: getProductJSON(),
         amount: getAmountJSON(),
         note: document.getElementById("note").value.trim() || "No Note Is Provided From Client",
-        otp_required: true,
+        otp_required: false,
     };
 
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -505,7 +519,8 @@ document.getElementById("orderForm").addEventListener("submit", async function (
             submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
         }
     } catch (err) {
-        alert("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + err.message);
+        console.log("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + err.message);
+        // alert("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + err.message);
         loader.classList.add("hidden");
         submitBtn.disabled = false;
         submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";

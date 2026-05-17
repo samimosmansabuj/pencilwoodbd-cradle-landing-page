@@ -33,7 +33,6 @@ document.getElementById("sendOtpBtn").addEventListener("click", async function (
             }
             throw new Error(data.message || "OTP send failed");
         }
-
         data = await res.json();
 
         // ===== TEST MODE: Mock OTP for testing =====
