@@ -408,14 +408,16 @@ document.getElementById("orderForm").addEventListener("submit", async function (
     //     return;
     // }
     // frontend now assumes OTP verified via /verify-otp/ before order submit
-    const otpVerifiedEl = document.getElementById("otpVerified");
-    if (otpVerifiedEl.style.display !== "block") {
-        alert("দয়া করে আগে মোবাইল নম্বর OTP দিয়ে ভেরিফাই করুন");
-        loader.classList.add("hidden");
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
-        return;
-    }
+    
+    // temporary OTP OFF
+    // const otpVerifiedEl = document.getElementById("otpVerified");
+    // if (otpVerifiedEl.style.display !== "block") {
+    //     alert("দয়া করে আগে মোবাইল নম্বর OTP দিয়ে ভেরিফাই করুন");
+    //     loader.classList.add("hidden");
+    //     submitBtn.disabled = false;
+    //     submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+    //     return;
+    // }
     if (!customerData.name || !customerData.phone || !customerData.district || !customerData.address) {
         alert("অনুগ্রহ করে সমস্ত গ্রাহক তথ্য পূরণ করুন।");
         loader.classList.add("hidden");
