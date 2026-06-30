@@ -17,7 +17,8 @@
             document.querySelectorAll(".product-new-price").forEach(el => {
                 el.textContent = toBanglaNumber(Math.floor(data.discount_price));
             })
-            FacebookViewContentEvent(data.name, data.discount_price, data.id);
+
+            GAViewItemEvent(data);
 
             if (errorUI) errorUI.classList.add("hidden");
             if (pageContent) pageContent.style.display = "block";
@@ -104,6 +105,8 @@ openBtns.forEach(btn => {
         const data = await apiFetch(`${ENV.API_BASE_URL}/site/api/landing-page/${ENV.PRODUCT_LANDING_PAGE_ID}/`);
         products = data.data.product
 
+        GAAddToCartEvent(products[0]);
+
         // Create Grid
         const grid = document.getElementById("productCardGrid");
         grid.innerHTML = "";
@@ -138,7 +141,6 @@ openBtns.forEach(btn => {
         content_ids = [String(productPrice.dataset.productId)];
         content_name = "Cradle - Baby Product";
         contentValue = parseFloat(toEnglishNumber(productPrice.textContent || 0));
-        FacebookAddToCartEvent(content_ids, content_name, contentValue);
 
         // Show modal
         modal.classList.add('active');
