@@ -63,18 +63,20 @@ galleryImages.forEach(img => {
 
 // *** District List Fetch ***
 const districtSelect = document.getElementById("deliverydistrict");
-fetch('https://bdapi.vercel.app/api/v.1/district').then(response => response.json()).then(data => {
-    if (data.status === 200 && data.success) {
-        data.data.forEach(district => {
-            const option = document.createElement('option')
-            option.value = district.name.toLowerCase()
-            option.setAttribute('district_id', district.id);
-            option.textContent = district.bn_name
-            districtSelect.appendChild(option)
-        });
-    }
-})
-    .catch(error => console.log('Error fetching district:', error))
+if (districtSelect) {
+    fetch('https://bdapi.vercel.app/api/v.1/district').then(response => response.json()).then(data => {
+        if (data.status === 200 && data.success) {
+            data.data.forEach(district => {
+                const option = document.createElement('option')
+                option.value = district.name.toLowerCase()
+                option.setAttribute('district_id', district.id);
+                option.textContent = district.bn_name
+                districtSelect.appendChild(option)
+            });
+        }
+    })
+        .catch(error => console.log('Error fetching district:', error))
+}
 // districtSelect.addEventListener("change", function(){
 //     const district = this.value;
 //     if (!district) return;
@@ -99,16 +101,23 @@ const apiFetch = async (url, { method = 'GET', body, headers = {} } = {}) =>
         .catch(err => { console.log('API error:', err); return null; });
 
 
+let products = [];
+
 openBtns.forEach(btn => {
     btn.addEventListener('click', async () => {
         // Fetch products
         const data = await apiFetch(`${ENV.API_BASE_URL}/site/api/landing-page/${ENV.PRODUCT_LANDING_PAGE_ID}/`);
+        if (!data || !data.data || !data.data.product) {
+            console.warn("Could not load products for order modal");
+            return;
+        }
         products = data.data.product
 
         GAAddToCartEvent(products[0]);
 
         // Create Grid
         const grid = document.getElementById("productCardGrid");
+        if (!grid) return;
         grid.innerHTML = "";
 
         // Render products dynamically
@@ -137,14 +146,18 @@ openBtns.forEach(btn => {
 
 
         // ----- PIXEL ADD TO CART SETUP -----
-        productPrice = document.getElementById("productPrice");
-        content_ids = [String(productPrice.dataset.productId)];
-        content_name = "Cradle - Baby Product";
-        contentValue = parseFloat(toEnglishNumber(productPrice.textContent || 0));
+        const productPrice = document.getElementById("productPrice");
+        if (productPrice) {
+            const content_ids = [String(productPrice.dataset.productId)];
+            const content_name = "Cradle - Baby Product";
+            const contentValue = parseFloat(toEnglishNumber(productPrice.textContent || 0));
+        }
 
         // Show modal
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
+        if (modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
     });
 });
 
@@ -165,7 +178,7 @@ function getProductDeliveryCharge(product, district) {
 
     // Area-set priority order
     const areaSets = ["area-set-1", "area-set-2", "area-set-3"];
-    area_and_charge = dc.area_and_charge
+    const area_and_charge = dc.area_and_charge || {};
     for (const key of areaSets) {
         if (!area_and_charge[key]) continue;
 
@@ -197,6 +210,12 @@ function setupModalProducts() {
     const productTotalEl = document.getElementById("productTotal");
     const summaryTotalEl = document.getElementById("summaryTotal");
     const deliveryChargeEl = document.getElementById("summaryDelivery");
+    const districtSelectEl = document.getElementById("deliverydistrict");
+
+    if (!productSummary || !productTotalEl || !summaryTotalEl || !deliveryChargeEl || !districtSelectEl) {
+        console.warn("Order summary elements missing; skipping modal setup.");
+        return;
+    }
 
     // Initialize quantities
     let quantities = {};
@@ -207,10 +226,10 @@ function setupModalProducts() {
 
     // DELIVERY CHARGE CALCULATE 
     let deliveryCharge = calculateDeliveryChargeFromSummary(
-        document.getElementById("deliverydistrict").value, quantities
+        districtSelectEl.value, quantities
     );
     deliveryChargeEl.innerText = deliveryCharge;
-    document.getElementById("deliverydistrict").addEventListener("change", function () {
+    districtSelectEl.addEventListener("change", function () {
         deliveryCharge = calculateDeliveryChargeFromSummary(this.value, quantities);
         deliveryChargeEl.innerText = deliveryCharge;
         updateSummary();
@@ -220,9 +239,11 @@ function setupModalProducts() {
     // Setup qty buttons
     products.forEach(product => {
         const card = document.querySelector(`.product-card[data-type='${product.name}']`);
+        if (!card) return;
         const minusBtn = card.querySelector(".minus");
         const plusBtn = card.querySelector(".plus");
         const qtyEl = card.querySelector(".qty-value");
+        if (!minusBtn || !plusBtn || !qtyEl) return;
 
         minusBtn.addEventListener("click", () => {
             if (quantities[product.id] > 0) quantities[product.id]--;
@@ -247,6 +268,10 @@ function setupModalProducts() {
             const qty = quantities[product.id];
             if (qty > 0) {
                 // --- Main product ---
+                if (product.id === undefined || product.id === null) {
+                    console.warn("Skipping main product row with invalid id:", product);
+                    return;
+                }
                 const total_amount = qty * product.discount_price;
                 productTotal += total_amount;
                 productSummary.appendChild(createRow(product.name, product.id, qty, product.discount_price, total_amount, "MAIN"));
@@ -255,6 +280,12 @@ function setupModalProducts() {
                 const gift_products = product.gift_product || [];
                 gift_products.forEach(gift => {
                     const giftProd = gift.gift_product;
+
+                    if (!giftProd || giftProd.id === undefined || giftProd.id === null) {
+                        console.warn("Skipping malformed gift product row:", gift);
+                        return;
+                    }
+
                     let giftUnitPrice = giftProd.discount_price;
 
                     // Apply gift_type discount
@@ -284,7 +315,7 @@ function setupModalProducts() {
         });
 
         deliveryCharge = calculateDeliveryChargeFromSummary(
-            document.getElementById("deliverydistrict").value,
+            districtSelectEl.value,
             quantities
         );
         deliveryChargeEl.innerText = deliveryCharge;
@@ -297,7 +328,7 @@ function setupModalProducts() {
         const row = document.createElement("div");
         row.className = "summary-row";
         row.dataset.productId = product_id;
-        row.dataset.referenceId = reference_id;
+        row.dataset.referenceId = reference_id === null || reference_id === undefined ? "" : reference_id;
         row.dataset.productType = product_type;
         row.dataset.productUnitPrice = unit_amount;
         row.innerHTML = `
@@ -314,18 +345,24 @@ function setupModalProducts() {
 }
 
 
-closeBtn.addEventListener('click', () => {
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-});
+if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+}
 let lockModal = false;
-modal.addEventListener('click', (e) => {
-    if (lockModal) return;
-    if (e.target === modal) {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-});
+if (modal) {
+    modal.addEventListener('click', (e) => {
+        if (lockModal) return;
+        if (e.target === modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+}
 
 
 function OrderCompleteCard() {
@@ -350,186 +387,188 @@ function OrderCompleteCard() {
 
 // Order Submit Script Start =================================================
 
-document.getElementById("orderForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
+const orderForm = document.getElementById("orderForm");
+if (orderForm) {
+    orderForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-    const modalContent = document.querySelector(".modal-content");
-    const loader = document.getElementById("pageLoader");
-    const submitBtn = document.getElementById("submitBtn");
-    loader.classList.remove("hidden");
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> প্রসেসিং...';
-
-
-    function getProductJSON() {
-        const allRows = productSummary.querySelectorAll(".summary-row");
-        const contents = [];
-        allRows.forEach(row => {
-            const product_id = row.dataset.productId;
-            const product_type = row.dataset.productType;
-            const reference_id = row.dataset.referenceId;
-            const product_unit_price = row.dataset.productUnitPrice;
-            const product_title = row.querySelector(".product_name")?.textContent.trim() || "";
-            const qty = Number(row.querySelector(".qty")?.textContent) || 0;
-            const total_amount = parseFloat(row.querySelector(".total_amount")?.textContent) || 0;
-            contents.push({
-                product_type: product_type,
-                reference_product: reference_id,
-                id: product_id,
-                name: product_title,
-                price: product_unit_price,
-                quantity: qty,
-                total_amount: total_amount
-            });
-        });
-        return contents;
-    }
-    function getCustomerJSON() {
-        customer_details = {
-            name: document.getElementById("name").value.trim(),
-            phone: document.getElementById("phone").value.trim(),
-            district: document.getElementById("deliverydistrict").value.trim(),
-            address: document.getElementById("address").value.trim(),
+        const modalContent = document.querySelector(".modal-content");
+        const loader = document.getElementById("pageLoader");
+        const submitBtn = document.getElementById("submitBtn");
+        if (loader) loader.classList.remove("hidden");
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> প্রসেসিং...';
         }
-        return customer_details
-    }
-    const customerData = getCustomerJSON();
-    function getAmountJSON() {
-        return {
-            productTotal: parseFloat(document.getElementById("productTotal").textContent),
-            deliveryCharge: Number(document.getElementById("summaryDelivery").textContent),
-            totalAmount: parseFloat(document.getElementById('summaryTotal').textContent || 0),
-        }
-    }
-
-    // if(!otpVerified){
-    //     alert("দয়া করে আগে মোবাইল নম্বর OTP দিয়ে ভেরিফাই করুন");
-    //     loader.classList.add("hidden");
-    //     submitBtn.disabled = false;
-    //     submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
-    //     return;
-    // }
-    // frontend now assumes OTP verified via /verify-otp/ before order submit
-    
-    // temporary OTP OFF
-    // const otpVerifiedEl = document.getElementById("otpVerified");
-    // if (otpVerifiedEl.style.display !== "block") {
-    //     alert("দয়া করে আগে মোবাইল নম্বর OTP দিয়ে ভেরিফাই করুন");
-    //     loader.classList.add("hidden");
-    //     submitBtn.disabled = false;
-    //     submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
-    //     return;
-    // }
-    if (!customerData.name || !customerData.phone || !customerData.district || !customerData.address) {
-        alert("অনুগ্রহ করে সমস্ত গ্রাহক তথ্য পূরণ করুন।");
-        loader.classList.add("hidden");
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
-        return;
-    }
-    if (!isValidBDPhoneNew(customerData.phone)) {
-        alert("অনুগ্রহ করে সঠিক বাংলাদেশি মোবাইল নম্বর লিখুন!");
-        loader.classList.add("hidden");
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
-        return;
-    }
-    if (getProductJSON().length === 0) {
-        alert("অনুগ্রহ করে অন্তত একটি পণ্য নির্বাচন করুন।");
-        loader.classList.add("hidden");
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
-        return;
-    }
-    if (getAmountJSON().totalAmount <= 0) {
-        alert("অবৈধ অর্ডার পরিমাণ। দয়া করে পণ্য এবং পরিমাণ পরীক্ষা করুন।");
-        loader.classList.add("hidden");
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
-        return;
-    }
-
-    // ----- PIXEL INITIATE CHECKOUT SETUP -----
-    const product_details_for_event_send = function getProductJsonForEventSend() {
-        const allRows = productSummary.querySelectorAll(".summary-row");
-        const contents = [];
-        allRows.forEach(row => {
-            const product_id = row.dataset.productId;
-            const product_unit_price = row.dataset.productUnitPrice;
-            const product_title = row.querySelector(".product_name")?.textContent.trim() || "";
-            const qty = Number(row.querySelector(".qty")?.textContent) || 0;
-            contents.push({
-                id: product_id,
-                name: product_title,
-                quantity: qty,
-                price: product_unit_price,
-            });
-        });
-        return contents;
-    };
-    summaryTotal = parseFloat(document.getElementById('summaryTotal').textContent || 0);
-    GAInitiateCheckoutEvent(product_details_for_event_send(), summaryTotal);
-
-    const formData = {
-        customer: customerData,
-        products: getProductJSON(),
-        amount: getAmountJSON(),
-        note: document.getElementById("note").value.trim() || "No Note Is Provided From Client",
-        otp_required: false,
-    };
-
-    await new Promise(resolve => setTimeout(resolve, 2000));
-
-    try {
-        // ----- ALTERNATIVE ORDER SUBMISSION METHOD -----
-        const response = await fetch(`${ENV.API_BASE_URL}/site/api/create-order/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify(formData)
-        });
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Server error: ${response.status} - ${errorText}`);
-        }
-        const data = await response.json();
-        if (data.success) {
-            // ----- PIXEL PURCHASE SETUP -----
-            GAInitiatePurchaseEvent(product_details_for_event_send(), summaryTotal);
-
-            lockModal = true;
-            modalContent.innerHTML = "";
-            modalContent.appendChild(OrderCompleteCard());
-            loader.classList.add("hidden");
-            document.body.style.overflow = 'hidden';
 
 
-            let countdown = 5;
-            const countdownEl = document.getElementById("countdown");
-            const interval = setInterval(() => {
-                countdown -= 1;
-                countdownEl.textContent = countdown;
-                if (countdown <= 0) {
-                    clearInterval(interval);
-                    window.location.href = "/";
+        function getProductJSON() {
+            const productSummary = document.getElementById("productSummary");
+            if (!productSummary) return [];
+            const allRows = productSummary.querySelectorAll(".summary-row");
+            const contents = [];
+            allRows.forEach(row => {
+                const product_id = row.dataset.productId;
+                if (!product_id || product_id === "undefined" || product_id === "null") {
+                    console.warn("Skipping row with invalid product_id:", row);
+                    return;
                 }
-            }, 1000);
-        } else {
-            alert("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + data.message);
-            loader.classList.add("hidden");
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+                const product_type = row.dataset.productType;
+                const reference_id = row.dataset.referenceId;
+                const product_unit_price = row.dataset.productUnitPrice;
+                const product_title = row.querySelector(".product_name")?.textContent.trim() || "";
+                const qty = Number(row.querySelector(".qty")?.textContent) || 0;
+                const total_amount = parseFloat(row.querySelector(".total_amount")?.textContent) || 0;
+                contents.push({
+                    product_type: product_type,
+                    reference_product: reference_id,
+                    id: product_id,
+                    name: product_title,
+                    price: product_unit_price,
+                    quantity: qty,
+                    total_amount: total_amount
+                });
+            });
+            return contents;
         }
-    } catch (err) {
-        console.log("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + err.message);
-        // alert("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + err.message);
-        loader.classList.add("hidden");
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
-    }
-});
+        function getCustomerJSON() {
+            const nameEl = document.getElementById("name");
+            const phoneEl = document.getElementById("phone");
+            const districtEl = document.getElementById("deliverydistrict");
+            const addressEl = document.getElementById("address");
+            return {
+                name: nameEl ? nameEl.value.trim() : "",
+                phone: phoneEl ? phoneEl.value.trim() : "",
+                district: districtEl ? districtEl.value.trim() : "",
+                address: addressEl ? addressEl.value.trim() : "",
+            }
+        }
+        const customerData = getCustomerJSON();
+        function getAmountJSON() {
+            const productTotalEl = document.getElementById("productTotal");
+            const summaryDeliveryEl = document.getElementById("summaryDelivery");
+            const summaryTotalEl = document.getElementById('summaryTotal');
+            return {
+                productTotal: parseFloat(productTotalEl ? productTotalEl.textContent : 0),
+                deliveryCharge: Number(summaryDeliveryEl ? summaryDeliveryEl.textContent : 0),
+                totalAmount: parseFloat(summaryTotalEl ? summaryTotalEl.textContent : 0 || 0),
+            }
+        }
+
+        function resetSubmitState() {
+            if (loader) loader.classList.add("hidden");
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = "অর্ডার কনফার্ম করুন";
+            }
+        }
+
+        // temporary OTP OFF — frontend now assumes OTP verified via /verify-otp/ before order submit,
+        // or is simply not required (otp_required: false below).
+
+        if (!customerData.name || !customerData.phone || !customerData.district || !customerData.address) {
+            alert("অনুগ্রহ করে সমস্ত গ্রাহক তথ্য পূরণ করুন।");
+            resetSubmitState();
+            return;
+        }
+        if (!isValidBDPhoneNew(customerData.phone)) {
+            alert("অনুগ্রহ করে সঠিক বাংলাদেশি মোবাইল নম্বর লিখুন!");
+            resetSubmitState();
+            return;
+        }
+        if (getProductJSON().length === 0) {
+            alert("অনুগ্রহ করে অন্তত একটি পণ্য নির্বাচন করুন।");
+            resetSubmitState();
+            return;
+        }
+        if (getAmountJSON().totalAmount <= 0) {
+            alert("অবৈধ অর্ডার পরিমাণ। দয়া করে পণ্য এবং পরিমাণ পরীক্ষা করুন।");
+            resetSubmitState();
+            return;
+        }
+
+        // ----- PIXEL INITIATE CHECKOUT SETUP -----
+        const product_details_for_event_send = function getProductJsonForEventSend() {
+            const productSummary = document.getElementById("productSummary");
+            if (!productSummary) return [];
+            const allRows = productSummary.querySelectorAll(".summary-row");
+            const contents = [];
+            allRows.forEach(row => {
+                const product_id = row.dataset.productId;
+                const product_unit_price = row.dataset.productUnitPrice;
+                const product_title = row.querySelector(".product_name")?.textContent.trim() || "";
+                const qty = Number(row.querySelector(".qty")?.textContent) || 0;
+                contents.push({
+                    id: product_id,
+                    name: product_title,
+                    quantity: qty,
+                    price: product_unit_price,
+                });
+            });
+            return contents;
+        };
+        const summaryTotalElFinal = document.getElementById('summaryTotal');
+        const summaryTotal = parseFloat(summaryTotalElFinal ? summaryTotalElFinal.textContent : 0 || 0);
+        GAInitiateCheckoutEvent(product_details_for_event_send(), summaryTotal);
+
+        const noteEl = document.getElementById("note");
+        const formData = {
+            customer: customerData,
+            products: getProductJSON(),
+            amount: getAmountJSON(),
+            note: noteEl ? (noteEl.value.trim() || "No Note Is Provided From Client") : "No Note Is Provided From Client",
+            otp_required: false,
+        };
+
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        try {
+            const response = await fetch(`${ENV.API_BASE_URL}/site/api/create-order/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(formData)
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Server error: ${response.status} - ${errorText}`);
+            }
+            const data = await response.json();
+            if (data.success) {
+                // ----- PIXEL PURCHASE SETUP -----
+                GAInitiatePurchaseEvent(product_details_for_event_send(), summaryTotal);
+
+                lockModal = true;
+                if (modalContent) {
+                    modalContent.innerHTML = "";
+                    modalContent.appendChild(OrderCompleteCard());
+                }
+                if (loader) loader.classList.add("hidden");
+                document.body.style.overflow = 'hidden';
+
+
+                let countdown = 5;
+                const countdownEl = document.getElementById("countdown");
+                const interval = setInterval(() => {
+                    countdown -= 1;
+                    if (countdownEl) countdownEl.textContent = countdown;
+                    if (countdown <= 0) {
+                        clearInterval(interval);
+                        window.location.href = "/";
+                    }
+                }, 1000);
+            } else {
+                alert("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + data.message);
+                resetSubmitState();
+            }
+        } catch (err) {
+            console.log("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + err.message);
+            resetSubmitState();
+        }
+    });
+}
 // Order Submit Script End =================================================
 
 
