@@ -518,6 +518,7 @@ if (orderForm) {
             amount: getAmountJSON(),
             note: noteEl ? (noteEl.value.trim() || "No Note Is Provided From Client") : "No Note Is Provided From Client",
             otp_required: false,
+            ...window.getAttributionData(),
         };
 
         await new Promise(resolve => setTimeout(resolve, 2000));
