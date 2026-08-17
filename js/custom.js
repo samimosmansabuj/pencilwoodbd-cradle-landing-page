@@ -66,7 +66,7 @@ document.getElementById("applyCouponBtn")?.addEventListener("click", async funct
                 code: code,
                 phone: phone,
                 subtotal: subtotal,
-                product_id: products.length ? products[0].id : null,
+                landing_page_code: ENV.PRODUCT_LANDING_PAGE_ID,
             }),
         });
         const data = await res.json();
@@ -453,6 +453,11 @@ const orderForm = document.getElementById("orderForm");
 if (orderForm) {
     orderForm.addEventListener("submit", async function (e) {
         e.preventDefault();
+        
+        if (!orderForm.checkValidity()) {
+            orderForm.reportValidity();
+            return;
+        }
 
         const modalContent = document.querySelector(".modal-content");
         const loader = document.getElementById("pageLoader");
@@ -581,6 +586,7 @@ if (orderForm) {
             note: noteEl ? (noteEl.value.trim() || "No Note Is Provided From Client") : "No Note Is Provided From Client",
             otp_required: false,
             coupon_code: appliedCouponCode,
+            landing_page_code: ENV.PRODUCT_LANDING_PAGE_ID,
             ...window.getAttributionData(),
         };
 

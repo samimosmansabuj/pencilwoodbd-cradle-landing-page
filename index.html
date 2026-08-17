@@ -486,7 +486,7 @@
                             <div class="form-group">
                                 <label for="deliverydistrict">ডেলিভারি লোকেশন</label>
                                 <select id="deliverydistrict" name="deliverydistrict" class="form-select" required>
-                                    <option selected disabled>জেলা নির্বাচন করুন</option>
+                                    <option value="" selected disabled>জেলা নির্বাচন করুন</option>
                                 </select>
                             </div>
 
@@ -523,12 +523,20 @@
                                 <strong>৳<span id="summaryDelivery">0</span></strong>
                             </div>
 
-                            <div class="coupon-box mb-3">
-                                <div class="input-group">
-                                    <input type="text" id="couponCodeInput" class="form-control" placeholder="Have a coupon code?">
-                                    <button type="button" id="applyCouponBtn" class="btn btn-outline-dark">Apply</button>
+                            <div class="coupon-box">
+                                <label for="couponCodeInput" class="coupon-label">
+                                    🎟️ কুপন কোড
+                                </label>
+                            
+                                <div class="coupon-input-group">
+                                    <input type="text" id="couponCodeInput" class="coupon-input" placeholder="কুপন কোড লিখুন" autocomplete="off">
+                            
+                                    <button type="button" id="applyCouponBtn" class="coupon-apply-btn">
+                                        Apply
+                                    </button>
                                 </div>
-                                <div id="couponMessage" class="mt-1" style="font-size: 13px;"></div>
+                            
+                                <div id="couponMessage" class="coupon-message"></div>
                             </div>
 
                             <div class="summary-total">
