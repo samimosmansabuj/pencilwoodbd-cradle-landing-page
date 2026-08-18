@@ -1522,3 +1522,124 @@ footer {
     border-radius: 8px;
     text-align: center;
 }
+
+/* =========================================================
+   COUPON SECTION
+========================================================= */
+
+.coupon-box {
+    margin: 10px 0 12px;
+    padding: 10px 0;
+}
+
+.coupon-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+/* Input + Button wrapper */
+.coupon-input-group {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+}
+
+/* Coupon input */
+.coupon-input {
+    flex: 1;
+    min-width: 0;
+    height: 42px;
+    padding: 8px 12px;
+
+    background: #fff;
+    border: 2px solid #e0a000;
+    border-radius: 12px;
+
+    font-family: "Hind Siliguri", sans-serif;
+    font-size: 15px;
+    color: #222;
+
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.coupon-input::placeholder {
+    color: #999;
+}
+
+.coupon-input:focus {
+    border-color: #12ad12;
+    box-shadow: 0 0 0 3px rgba(18, 173, 18, 0.12);
+}
+
+/* Apply button */
+.coupon-apply-btn {
+    flex-shrink: 0;
+
+    height: 42px;
+    min-width: 78px;
+    padding: 0 16px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: #222;
+    color: #fff;
+
+    font-family: "Hind Siliguri", sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.coupon-apply-btn:hover {
+    background: #000;
+    transform: translateY(-1px);
+}
+
+.coupon-apply-btn:active {
+    transform: translateY(0);
+}
+
+/* Coupon message */
+.coupon-message {
+    min-height: 18px;
+    margin-top: 5px;
+    padding-left: 3px;
+
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* Success message */
+.coupon-message.success {
+    color: #16a34a;
+}
+
+/* Error message */
+.coupon-message.error {
+    color: #dc2626;
+}
+
+/* Mobile */
+@media (max-width: 380px) {
+
+    .coupon-input {
+        font-size: 14px;
+        padding: 8px 10px;
+    }
+
+    .coupon-apply-btn {
+        min-width: 70px;
+        padding: 0 12px;
+        font-size: 14px;
+    }
+
+}

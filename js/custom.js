@@ -36,6 +36,68 @@
     }
 })();
 
+let appliedCouponDiscount = 0;
+let appliedCouponCode = null;
+
+document.getElementById("applyCouponBtn")?.addEventListener("click", async function () {
+    const codeInput = document.getElementById("couponCodeInput");
+    const messageEl = document.getElementById("couponMessage");
+    const phoneInput = document.getElementById("phone"); // adjust to actual phone field id
+
+    const code = codeInput.value.trim();
+    const phone = phoneInput ? phoneInput.value.trim() : "";
+    const productTotalEl = document.getElementById("productTotal");
+    const subtotal = parseFloat(productTotalEl ? productTotalEl.textContent : 0);
+
+    if (!code) {
+        messageEl.innerHTML = '<span style="color:red;">Enter a coupon code</span>';
+        return;
+    }
+    if (!phone) {
+        messageEl.innerHTML = '<span style="color:red;">Enter your phone number first</span>';
+        return;
+    }
+
+    try {
+        const res = await fetch(`${ENV.API_BASE_URL}/site/api/apply-coupon/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                code: code,
+                phone: phone,
+                subtotal: subtotal,
+                landing_page_code: ENV.PRODUCT_LANDING_PAGE_ID,
+            }),
+        });
+        const data = await res.json();
+
+        if (data.status) {
+            appliedCouponDiscount = data.data.discount_amount;
+            appliedCouponCode = data.data.code;
+            messageEl.innerHTML = `<span style="color:green;">✓ Coupon applied: -৳${appliedCouponDiscount}</span>`;
+            recalculateSummaryWithCoupon();
+        } else {
+            appliedCouponDiscount = 0;
+            appliedCouponCode = null;
+            messageEl.innerHTML = `<span style="color:red;">${data.message}</span>`;
+            recalculateSummaryWithCoupon();
+        }
+    } catch (err) {
+        messageEl.innerHTML = '<span style="color:red;">Something went wrong. Try again.</span>';
+    }
+});
+
+function recalculateSummaryWithCoupon() {
+    const productTotalEl = document.getElementById("productTotal");
+    const deliveryChargeEl = document.getElementById("summaryDelivery");
+    const summaryTotalEl = document.getElementById("summaryTotal");
+
+    const productTotal = parseFloat(productTotalEl.textContent || 0);
+    const deliveryCharge = parseFloat(deliveryChargeEl.textContent || 0);
+
+    summaryTotalEl.innerText = (productTotal + deliveryCharge - appliedCouponDiscount).toFixed(0);
+}
+
 function toBanglaNumber(number) {
     const eng = "0123456789";
     const bang = "০১২৩৪৫৬৭৮৯";
@@ -391,6 +453,11 @@ const orderForm = document.getElementById("orderForm");
 if (orderForm) {
     orderForm.addEventListener("submit", async function (e) {
         e.preventDefault();
+        
+        if (!orderForm.checkValidity()) {
+            orderForm.reportValidity();
+            return;
+        }
 
         const modalContent = document.querySelector(".modal-content");
         const loader = document.getElementById("pageLoader");
@@ -518,6 +585,8 @@ if (orderForm) {
             amount: getAmountJSON(),
             note: noteEl ? (noteEl.value.trim() || "No Note Is Provided From Client") : "No Note Is Provided From Client",
             otp_required: false,
+            coupon_code: appliedCouponCode,
+            landing_page_code: ENV.PRODUCT_LANDING_PAGE_ID,
             ...window.getAttributionData(),
         };
 

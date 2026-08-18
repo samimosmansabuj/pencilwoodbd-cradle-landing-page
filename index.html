@@ -486,7 +486,7 @@
                             <div class="form-group">
                                 <label for="deliverydistrict">ডেলিভারি লোকেশন</label>
                                 <select id="deliverydistrict" name="deliverydistrict" class="form-select" required>
-                                    <option selected disabled>জেলা নির্বাচন করুন</option>
+                                    <option value="" selected disabled>জেলা নির্বাচন করুন</option>
                                 </select>
                             </div>
 
@@ -508,7 +508,6 @@
                                     placeholder="রং/ডেলিভারি টাইম বা অন্য কিছু লিখুন"></textarea>
                             </div>
                         </div>
-
                         <!-- ----- TOTAL SUMMARY SECTION ----- -->
                         <div class="mobile-order-summary">
                             <h3>Order Summary</h3>
@@ -523,6 +522,23 @@
                                 <span>ডেলিভারি চার্জ</span>
                                 <strong>৳<span id="summaryDelivery">0</span></strong>
                             </div>
+
+                            <div class="coupon-box">
+                                <label for="couponCodeInput" class="coupon-label">
+                                    🎟️ কুপন কোড
+                                </label>
+                            
+                                <div class="coupon-input-group">
+                                    <input type="text" id="couponCodeInput" class="coupon-input" placeholder="কুপন কোড লিখুন" autocomplete="off">
+                            
+                                    <button type="button" id="applyCouponBtn" class="coupon-apply-btn">
+                                        Apply
+                                    </button>
+                                </div>
+                            
+                                <div id="couponMessage" class="coupon-message"></div>
+                            </div>
+
                             <div class="summary-total">
                                 <strong>Total Price</strong>
                                 <strong>৳<span id="summaryTotal">0</span></strong>
