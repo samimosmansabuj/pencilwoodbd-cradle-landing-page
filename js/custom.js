@@ -1,3 +1,5 @@
+window.__CURRENT_LANDING_CODE__ = ENV.PRODUCT_LANDING_PAGE_ID;
+
 (async function () {
     const errorUI = document.getElementById("productError");
     const pageContent = document.getElementById("pageContent");
@@ -7,6 +9,7 @@
     try {
         const response = await fetch(`${ENV.API_BASE_URL}/site/api/landing-page/${ENV.PRODUCT_LANDING_PAGE_ID}/`);
         const response_data = await response.json()
+
         if (response_data.status && response_data.data?.product?.length) {
             const data = response_data.data.product[0]
 
