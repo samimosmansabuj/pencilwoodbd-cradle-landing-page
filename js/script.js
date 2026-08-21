@@ -1,4 +1,4 @@
-// স্ক্রল করে section দৃশ্যমান হলে অ্যানিমেশন চালু Start============================
+// Animation Start after fully loaded scroll section Start============================
 const newPrices = document.querySelectorAll('.new-price');
 
 const new_observer = new IntersectionObserver((entries) => {
@@ -23,14 +23,14 @@ const observer = new IntersectionObserver((entries) => {
         }
     });
 }, {
-    threshold: 0.8 // ৮০% দৃশ্যমান হলে ট্রিগার
+    threshold: 0.8 // Trigger after loaded 80%
 });
 
 // different observe on all .old-price element
 oldPrices.forEach(element => {
     observer.observe(element);
 });
-// স্ক্রল করে section দৃশ্যমান হলে অ্যানিমেশন চালু End============================
+// Animation Start after fully loaded scroll section End============================
 
 
 // For FAQ==================================================================
