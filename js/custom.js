@@ -1,3 +1,7 @@
+function isMandatoryOtpEnabled() {
+        return !!document.getElementById("sendOtpBtn");
+}
+
 window.__CURRENT_LANDING_CODE__ = ENV.PRODUCT_LANDING_PAGE_ID;
 
 (async function () {
@@ -595,6 +599,30 @@ if (orderForm) {
 
         await new Promise(resolve => setTimeout(resolve, 2000));
 
+        function handleOrderSuccess() {
+            // ----- PIXEL PURCHASE SETUP -----
+            GAInitiatePurchaseEvent(product_details_for_event_send(), summaryTotal);
+
+            lockModal = true;
+            if (modalContent) {
+                modalContent.innerHTML = "";
+                modalContent.appendChild(OrderCompleteCard());
+            }
+            if (loader) loader.classList.add("hidden");
+            document.body.style.overflow = 'hidden';
+
+            let countdown = 5;
+            const countdownEl = document.getElementById("countdown");
+            const interval = setInterval(() => {
+                countdown -= 1;
+                if (countdownEl) countdownEl.textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    window.location.href = "/";
+                }
+            }, 1000);
+        }
+
         try {
             const response = await fetch(`${ENV.API_BASE_URL}/site/api/create-order/`, {
                 method: "POST",
@@ -604,36 +632,25 @@ if (orderForm) {
                 },
                 body: JSON.stringify(formData)
             });
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Server error: ${response.status} - ${errorText}`);
-            }
+
             const data = await response.json();
+
             if (data.success) {
-                // ----- PIXEL PURCHASE SETUP -----
-                GAInitiatePurchaseEvent(product_details_for_event_send(), summaryTotal);
-
-                lockModal = true;
-                if (modalContent) {
-                    modalContent.innerHTML = "";
-                    modalContent.appendChild(OrderCompleteCard());
-                }
-                if (loader) loader.classList.add("hidden");
-                document.body.style.overflow = 'hidden';
-
-
-                let countdown = 5;
-                const countdownEl = document.getElementById("countdown");
-                const interval = setInterval(() => {
-                    countdown -= 1;
-                    if (countdownEl) countdownEl.textContent = countdown;
-                    if (countdown <= 0) {
-                        clearInterval(interval);
-                        window.location.href = "/";
+                handleOrderSuccess();
+            } else if (data.otp_required && !isMandatoryOtpEnabled()) {
+                resetSubmitState();
+                showOtpVerifyModal({
+                    phone: data.phone || customerData.phone,
+                    message: data.message,
+                    apiBase: ENV.API_BASE_URL,
+                    orderEndpoint: "/site/api/create-order/",
+                    orderPayload: formData,
+                    onSuccess: function () {
+                        handleOrderSuccess();
                     }
-                }, 1000);
+                });
             } else {
-                alert("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + data.message);
+                alert("অর্ডার সাবমিট করতে সমস্যা হয়েছে! দয়া করে আবার চেষ্টা করুন।\n" + (data.message || ""));
                 resetSubmitState();
             }
         } catch (err) {
