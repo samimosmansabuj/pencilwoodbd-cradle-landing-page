@@ -199,7 +199,7 @@ openBtns.forEach(btn => {
                 <div class="card-info">
                     <p hidden class="product-id">${product.id}</p>
                     <h4>${product.name}</h4>
-                    <p>৳ <del>${toBanglaNumber(product.price)}</del> <span class="unit-price">${toBanglaNumber(product.discount_price)}</span></p>
+                    <p>৳ <del>${toBanglaNumber(product.price)}</del> <span class="unit-price" style="font-weight: bold;">${toBanglaNumber(product.discount_price)}</span></p>
                 </div>
                 <div class="qty-control">
                     <button type="button" class="qty-btn minus" data-product-id="${product.id}">−</button>
